@@ -19,7 +19,7 @@ The following is a git shell example for installing the app on your local machin
 
 ```shell
 cd /code_folder
-git clone https://github.com/CenterForDigitalHumanities/TinyNode.git tiny_things
+git clone https://github.com/CenterForDigitalHumanities/TinyPen.git tiny_things
 npm install
 ```
 
