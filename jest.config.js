@@ -21,7 +21,7 @@ module.exports = {
   detectOpenHandles : false,
 
   displayName: {
-    name: 'TinyNode',
+    name: 'TinyPen',
     color: 'cyan'
   },
 

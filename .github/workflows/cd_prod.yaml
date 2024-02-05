@@ -1,4 +1,4 @@
-name: TinyNode production deploy on push to main.
+name: TinyPen production deploy on push to main.
 on:
   push:
     branches: main
@@ -53,8 +53,8 @@ jobs:
               touch /srv/node/logs/tinynode.txt
           fi
           cd /srv/node/tiny-node/
-          pm2 stop tinyNode
+          pm2 stop tinyPen
           git stash
           git pull
           npm install
-          pm2 start -i max bin/tinyNode.js
+          pm2 start -i max bin/tinyPen.js

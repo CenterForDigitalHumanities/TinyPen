@@ -18,7 +18,7 @@ router.put('/', async (req, res, next) => {
     const updateOptions = {
       json: updateBody,
       headers: {
-        'user-agent': 'Tiny-Node',
+        'user-agent': 'Tiny-Pen',
         'Authorization': `Bearer ${process.env.ACCESS_TOKEN}`, // not required for query
         'Content-Type' : "application/json;charset=utf-8"
       }

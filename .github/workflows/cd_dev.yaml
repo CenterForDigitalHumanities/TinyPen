@@ -1,4 +1,4 @@
-name: TinyNode Dev Deploy on PR to main
+name: TinyPen Dev Deploy on PR to main
 on:
   pull_request:
     branches: main
@@ -63,13 +63,13 @@ jobs:
       - uses: actions/checkout@master
       - name: Deploy the app on the server
         run: |
-          if [[ ! -e /srv/node/logs/tinynode.txt ]]; then
+          if [[ ! -e /srv/node/logs/tinypen.txt ]]; then
               mkdir -p /srv/node/logs
-              touch /srv/node/logs/tinynode.txt
+              touch /srv/node/logs/tinypen.txt
           fi
           cd /srv/node/tiny-node/
-          pm2 stop tinyNode
+          pm2 stop tinyPen
           git stash
           git pull
           npm install
-          pm2 start -i max bin/tinyNode.js
+          pm2 start -i max bin/tinyPen.js

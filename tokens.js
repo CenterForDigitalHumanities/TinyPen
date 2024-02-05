@@ -26,7 +26,7 @@ async function generateNewAccessToken() {
             let env_file_obj = parse(data)
             env_file_obj.ACCESS_TOKEN = tokenObject.access_token
             await fs.writeFile('./.env', stringify(env_file_obj))
-            console.log("TinyNode now has an updated access token.")
+            console.log("TinyPen now has an updated access token.")
         }
         catch (env_error) {
             console.error("Could not write new token property to the file.  The access token has not been updated.")
@@ -44,6 +44,6 @@ async function generateNewAccessToken() {
  * your RERUM instance as unauthorized.
  */
 if (isTokenExpired(process.env.ACCESS_TOKEN)) {
-    console.log("Tiny Node detected an expired access token.  Updating the token now.")
+    console.log("TinyPen detected an expired access token.  Updating the token now.")
     generateNewAccessToken()
 }
