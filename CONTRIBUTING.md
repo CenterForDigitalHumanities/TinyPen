@@ -20,4 +20,4 @@ This is a piece of the TPEN ecosystem, under active development. You are invited
 * [Services](https://github.com/CenterForDigitalHumanities/TPEN-Services): This provides an internal and external API for TPEN Interfaces and third-party modules.
 * [Interfaces](https://github.com/CenterForDigitalHumanities/TPEN-Interfaces): The are the core web application experience for users and efficacious exemplars for custom development.
 * [Users](https://github.com/CenterForDigitalHumanities/TPEN-Users): Authentication for users as a flavor of Rerum Users, supporting TPEN annotation and durable attribution.
-* [Tiny](https://github.com/CenterForDigitalHumanities/TinyPen): This repository. The protected interactions between TPEN and RERUM. This is mostly a clone of [Tiny Things](https://github.com/CenterForDigitalHumanities/TinyNode), if you are feeling generous.
+* [Tiny](https://github.com/CenterForDigitalHumanities/TinyPen): This repository. The protected interactions between TPEN and RERUM. This is mostly a clone of [Tiny Things](https://github.com/CenterForDigitalHumanities/TinyPEN), if you are feeling generous.
