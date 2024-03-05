@@ -11,6 +11,8 @@ const cors = require('cors')
  *  See https://saumya.github.io/ray/articles/96/
  */
 const corsOrigin = process.env.OPEN_API_CORS == "true" ? "*" : process.env.SERVICES_ORIGINS.split(",")
+console.log("CORS ORIGIN VALUE")
+console.log(corsOrigin)
 router.use(cors({
     "methods" : "GET",
     "allowedHeaders" : [
