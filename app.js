@@ -61,7 +61,10 @@ app.use(cors({
  * Proper Access-Control-Allow-Origin headers are a single URL or *
  */ 
 app.use(function(req, res, next) {
+  console.log("REQUEST HEADERS")
+  console.log(req.headers)
   let origin = req.headers.origin ? req.headers.origin : req.headers.host ?? "unknown"
+  console.log(`origin of request: '${origin}'`)
   const allowedOrigins = process.env.SERVICES_ORIGINS.split(",")
   if(!(origin.startsWith("http://") || origin.startsWith("https://"))){
     // We will need to determine which to add. localhost is always http://
@@ -74,10 +77,14 @@ app.use(function(req, res, next) {
   }
   if(allowedOrigins.includes(origin) || origin.includes("localhost")){
     // We are OK with any localhost URL or any allowed origins from the app settings.
+    console.log("CORS allows this origin")
+    console.log(origin)
     res.setHeader('Access-Control-Allow-Origin', origin)
   }
   else{
     // No CORS for you.
+    console.log("No cors for you")
+    console.log(origin)
     res.setHeader('Access-Control-Allow-Origin', "")
   }
   next()

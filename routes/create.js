@@ -13,6 +13,7 @@ router.post('/', async (req, res, next) => {
       json: createBody,
       headers: {
         'user-agent': 'Tiny-Pen',
+        'Origin': process.env.ORIGIN,
         'Authorization': `Bearer ${process.env.ACCESS_TOKEN}`, // not required for query
         'Content-Type' : "application/json;charset=utf-8"
       }
@@ -21,6 +22,8 @@ router.post('/', async (req, res, next) => {
     const result = await got.post(createURL, createOptions).json()
     res.setHeader("Location", result["@id"])
     res.status(201)
+    console.log("RESPONSE HEADERS FROM CREATE SUCCESS")
+    console.log(res.getHeaders())
     res.send(result)
   }
   catch (err) {
