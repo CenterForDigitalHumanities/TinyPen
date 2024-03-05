@@ -5,7 +5,7 @@
 
 const config = {
     langKey: {
-        appName: "Tiny Things v.1.2",
+        appName: "TinyPen v.1.0",
         appDesc: "Simple web forms to ping RERUM operations.",
 
         loadExample: "load example",
