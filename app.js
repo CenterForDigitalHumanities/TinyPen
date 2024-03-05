@@ -17,7 +17,7 @@ var createRouter = require('./routes/create')
 var updateRouter = require('./routes/update')
 var deleteRouter = require('./routes/delete')
 var overwriteRouter = require('./routes/overwrite')
-
+const cors = require('cors')
 var app = express()
 
 // view engine setup
@@ -26,11 +26,44 @@ app.set('view engine', 'pug')
 
 app.use(logger('dev'))
 app.use(express.json())
-if(process.env.OPEN_API_CORS !== "false") { 
-  // This enables CORS for all requests. We may want to update this in the future and only apply to some routes.
-  const cors = require('cors')
-  app.use(cors()) 
-}
+/**
+ *  Note that origin must be a string in the response.
+ *  The cors middleware allows registration via an Array of origins.
+ *  However, Allow-Origin response headers must be a string with a single origin or '*'
+ *  If we have multiple origins, we need to determine the origin to set the response header correctly in the routes.  
+ *  See https://saumya.github.io/ray/articles/96/
+ */
+
+app.use(cors({
+    "methods" : "GET",
+    "allowedHeaders" : [
+      'Content-Type',
+      'Content-Length',
+      'Allow',
+      'Authorization',
+      'Location',
+      'ETag',
+      'Connection',
+      'Keep-Alive',
+      'Date',
+      'Cache-Control',
+      'Last-Modified',
+      'Link',
+      'X-HTTP-Method-Override'
+    ],
+    "exposedHeaders" : "*",
+    "origin" : process.env.OPEN_API_CORS == "true" ? "*" : process.env.SERVICES_ORIGINS.split(","),
+    "maxAge" : "600"
+})) 
+
+app.use(function(req, res, next) {
+  const origin = req.headers.origin
+  const allowedOrigins = process.env.SERVICES_ORIGINS.split(",")
+  if(allowedOrigins.includes(origin)){
+    res.setHeader('Access-Control-Allow-Origin', origin)
+  }
+})
+
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
