@@ -33,7 +33,7 @@ app.use(express.json())
  *  If we have multiple origins, we need to determine the origin to set the response header correctly in the routes.  
  *  See https://saumya.github.io/ray/articles/96/
  */
-
+const corsOrigin = process.env.OPEN_API_CORS == "true" ? "*" : process.env.SERVICES_ORIGINS.split(",")
 app.use(cors({
     "methods" : "GET",
     "allowedHeaders" : [
@@ -52,16 +52,29 @@ app.use(cors({
       'X-HTTP-Method-Override'
     ],
     "exposedHeaders" : "*",
-    "origin" : process.env.OPEN_API_CORS == "true" ? "*" : process.env.SERVICES_ORIGINS.split(","),
+    "origin" : corsOrigin,
     "maxAge" : "600"
-})) 
+}))
 
+/**
+ * Prepare the Access-Control-Allow-Origin header before entering routes.
+ * Proper Access-Control-Allow-Origin headers are a single URL or *
+ */ 
 app.use(function(req, res, next) {
-  const origin = req.headers.origin
+  let origin = req.headers.origin ? req.headers.origin : req.headers.host ?? "unknown"
   const allowedOrigins = process.env.SERVICES_ORIGINS.split(",")
+  if(!(origin.startsWith("http://") || origin.startsWith("https://"))){
+    // We will need to determine which to add to accomodate localhost
+    if(origin.includes("localhost") || origin.includes("127.0.0.1")) origin = "http://"+origin
+    else{ origin = "https://"+origin }
+  }
   if(allowedOrigins.includes(origin)){
     res.setHeader('Access-Control-Allow-Origin', origin)
   }
+  else{
+    res.setHeader('Access-Control-Allow-Origin', "")
+  }
+  next()
 })
 
 app.use(express.urlencoded({ extended: false }))
@@ -84,6 +97,8 @@ app.use('/app/create', createRouter)
 app.use('/app/update', updateRouter)
 app.use('/app/delete', deleteRouter)
 app.use('/app/overwrite', overwriteRouter)
+
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
