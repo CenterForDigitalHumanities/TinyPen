@@ -40,7 +40,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 const corsOrigin = process.env.OPEN_API_CORS == "true" ? "*" : process.env.SERVICES_ORIGINS.split(",")
 console.log("CORS ORIGIN VALUE")
 console.log(corsOrigin)
-router.use(cors({
+app.use(cors({
     "methods" : "GET",
     "allowedHeaders" : [
       'Content-Type',
