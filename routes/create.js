@@ -1,7 +1,6 @@
 const express = require('express')
 const router = express.Router()
 const got = require('got')
-const cors = require('cors')
 
 /* POST a create to the thing. */
 router.post('/', async (req, res, next) => {
