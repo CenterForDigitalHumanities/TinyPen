@@ -31,7 +31,7 @@ router.use(cors({
       'X-HTTP-Method-Override'
     ],
     "exposedHeaders" : "*",
-    "origin" : "*",
+    "origin" : corsOrigin,
     "maxAge" : "600"
 }))
 
@@ -39,32 +39,32 @@ router.use(cors({
  * Prepare the Access-Control-Allow-Origin header before entering routes.
  * Proper Access-Control-Allow-Origin headers are a single URL or *
  */ 
-// router.use(function(req, res, next) {
-//   let origin = req.headers.origin ? req.headers.origin : req.headers.host ?? "unknown"
-//   const allowedOrigins = process.env.SERVICES_ORIGINS.split(",")
-//   if(!(origin.startsWith("http://") || origin.startsWith("https://"))){
-//     // We will need to determine which to add. localhost is always http://
-//     if(origin.includes("localhost") || origin.includes("127.0.0.1")) origin = "http://"+origin
-//     else{ 
-//       // This client request did not have a proper Access-Control-Allow-Origin header so we used the HOST header which may not include protocol.
-//       // We can error.  Pretending they are https will probably work 95% of the time.
-//       origin = "https://"+origin 
-//     }
-//   }
-//   if(allowedOrigins.includes(origin) || origin.includes("localhost")){
-//     // We are OK with any localhost URL or any allowed origins from the app settings.
-//     console.log("CORS allows this origin")
-//     console.log(origin)
-//     res.setHeader('Access-Control-Allow-Origin', origin)
-//   }
-//   else{
-//     // No CORS for you.
-//     console.log("No cors for you")
-//     console.log(origin)
-//     res.setHeader('Access-Control-Allow-Origin', "")
-//   }
-//   next()
-// })
+router.use(function(req, res, next) {
+  let origin = req.headers.origin ? req.headers.origin : req.headers.host ?? "unknown"
+  const allowedOrigins = process.env.SERVICES_ORIGINS.split(",")
+  if(!(origin.startsWith("http://") || origin.startsWith("https://"))){
+    // We will need to determine which to add. localhost is always http://
+    if(origin.includes("localhost") || origin.includes("127.0.0.1")) origin = "http://"+origin
+    else{ 
+      // This client request did not have a proper Access-Control-Allow-Origin header so we used the HOST header which may not include protocol.
+      // We can error.  Pretending they are https will probably work 95% of the time.
+      origin = "https://"+origin 
+    }
+  }
+  if(allowedOrigins.includes(origin) || origin.includes("localhost")){
+    // We are OK with any localhost URL or any allowed origins from the app settings.
+    console.log("CORS allows this origin")
+    console.log(origin)
+    res.setHeader('Access-Control-Allow-Origin', origin)
+  }
+  else{
+    // No CORS for you.
+    console.log("No cors for you")
+    console.log(origin)
+    res.setHeader('Access-Control-Allow-Origin', "")
+  }
+  next()
+})
 
 /* POST a create to the thing. */
 router.post('/', async (req, res, next) => {
