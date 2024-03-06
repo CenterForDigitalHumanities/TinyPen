@@ -40,10 +40,7 @@ router.use(cors({
  * Proper Access-Control-Allow-Origin headers are a single URL or *
  */ 
 router.use(function(req, res, next) {
-  console.log("REQUEST HEADERS")
-  console.log(req.headers)
   let origin = req.headers.origin ? req.headers.origin : req.headers.host ?? "unknown"
-  console.log(`origin of request: '${origin}'`)
   const allowedOrigins = process.env.SERVICES_ORIGINS.split(",")
   if(!(origin.startsWith("http://") || origin.startsWith("https://"))){
     // We will need to determine which to add. localhost is always http://
@@ -73,6 +70,9 @@ router.use(function(req, res, next) {
 router.post('/', async (req, res, next) => {
   try {
     // check body for JSON
+    console.log("POST in create.")
+    console.log("REQUEST HEADERS")
+    console.log(req.headers)
     JSON.stringify(req.body)
     const createBody = req.body
     const createOptions = {
@@ -99,7 +99,12 @@ router.post('/', async (req, res, next) => {
 })
 
 router.options('/', async (req, res, next) => {
+  console.log("OPTIONS in create.")
+  console.log("REQUEST HEADERS")
+  console.log(req.headers)
   res.status(200)
+  console.log("RESPONSE HEADERS")
+  console.log(res.getHeaders())
   res.send()
 })
 
