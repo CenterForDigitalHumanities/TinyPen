@@ -6,9 +6,6 @@ const got = require('got')
 router.post('/', async (req, res, next) => {
   try {
     // check body for JSON
-    console.log("POST in create.")
-    console.log("REQUEST HEADERS")
-    console.log(req.headers)
     JSON.stringify(req.body)
     const createBody = req.body
     const createOptions = {
@@ -24,8 +21,6 @@ router.post('/', async (req, res, next) => {
     const result = await got.post(createURL, createOptions).json()
     res.setHeader("Location", result["@id"])
     res.status(201)
-    console.log("RESPONSE HEADERS FROM CREATE SUCCESS")
-    console.log(res.getHeaders())
     res.send(result)
   }
   catch (err) {
