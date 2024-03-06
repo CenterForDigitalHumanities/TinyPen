@@ -47,8 +47,6 @@ app.use('/app/update', updateRouter)
 app.use('/app/delete', deleteRouter)
 app.use('/app/overwrite', overwriteRouter)
 
-
-
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404))
