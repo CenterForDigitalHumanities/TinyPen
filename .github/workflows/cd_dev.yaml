@@ -33,11 +33,13 @@ jobs:
               touch /srv/node/logs/tinypen.txt
           fi
           cd /srv/node/tinyPen/
-          pm2 stop tinyPen
-          git stash
-          git checkout main
-          git pull
-          git checkout $GITHUB_HEAD_REF
-          git pull
-          npm install
-          pm2 start -i max bin/tinyPen.js
+          echo "Private Project Don't Work Without Login"
+          echo "When this isn't private do the following"
+          echo "pm2 stop tinyPen"
+          echo "git stash"
+          echo "git checkout main"
+          echo "git pull"
+          echo "git checkout $GITHUB_HEAD_REF"
+          echo "git pull"
+          echo "npm install"
+          echo "pm2 start -i max bin/tinyPen.js"
