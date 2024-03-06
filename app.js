@@ -38,9 +38,7 @@ app.use(express.static(path.join(__dirname, 'public')))
  *  If we have multiple origins, we need to determine the origin to set the response header correctly in the routes.  
  *  See https://saumya.github.io/ray/articles/96/
  */
-const corsOrigin = process.env.OPEN_API_CORS == "true" ? "*" : process.env.SERVICES_ORIGINS.split(",")
-console.log("CORS ORIGIN VALUE")
-console.log(corsOrigin)
+const corsAllowedOrigins = process.env.OPEN_API_CORS == "true" ? "*" : process.env.SERVICES_ORIGINS.split(",")
 app.use(cors({
     "methods" : "GET",
     "allowedHeaders" : [
@@ -59,7 +57,7 @@ app.use(cors({
       'X-HTTP-Method-Override'
     ],
     "exposedHeaders" : "*",
-    "origin" : corsOrigin,
+    "origin" : corsAllowedOrigins,
     "maxAge" : "600"
 }))
 
@@ -69,9 +67,11 @@ app.use(cors({
  */ 
 app.use(function(req, res, next) {
   let origin = req.headers.origin ? req.headers.origin : req.headers.host ?? "unknown"
+  console.log(req.headers)
   const allowedOrigins = process.env.SERVICES_ORIGINS.split(",")
+  // Requests may not contain an Origin header.  These requests are considered improper for CORS.
+  // However, we can try to support them still.
   if(!(origin.startsWith("http://") || origin.startsWith("https://"))){
-    // We will need to determine which to add. localhost is always http://
     if(origin.includes("localhost") || origin.includes("127.0.0.1")) origin = "http://"+origin
     else{ 
       // This client request did not have a proper Access-Control-Allow-Origin header so we used the HOST header which may not include protocol.
