@@ -33,7 +33,7 @@ app.use(express.static(path.join(__dirname, 'public')))
  *  Note that origin must be a string in the response.
  *  The cors() middleware allows registration via an Array of origins.
  *  However, Access-Control-Allow-Origin response headers must be a string with a single origin URL or '*'
- *  If we have multiple origins, we need to determine the origin in downstream middleware. 
+ *  If we have multiple supported origins, we need to determine the correct origin being used in downstream middleware. 
  */
 const corsAllowedOrigins = process.env.OPEN_API_CORS == "true" ? "*" : process.env.SERVICES_ORIGINS.split(",")
 app.use(cors({
