@@ -74,6 +74,10 @@ app.use(function(req, res, next) {
     req.headers.origin ? req.headers.origin 
     : req.headers.referrer ? req.headers.referrer
     : req.headers.host ?? "unknown"
+  if(origin.endWith("/")) origin = origin.slice(0, -1)
+  console.log("REQUEST ORIGIN")
+  console.log(origin)
+  console.log(process.env.LOCALHOSTMODE)
   const allowedOrigins = process.env.SERVICES_ORIGINS.split(",")
   if(!(origin.startsWith("http://") || origin.startsWith("https://"))){
     if(origin.includes("localhost") || origin.includes("127.0.0.1")) origin = "http://"+origin
@@ -83,9 +87,7 @@ app.use(function(req, res, next) {
       origin = "https://"+origin 
     }
   }
-  console.log("REQUEST ORIGIN")
-  console.log(origin)
-  console.log(process.env.LOCALHOSTMODE)
+
   if(allowedOrigins.includes(origin) || (process.env.LOCALHOSTMODE === "true" && origin.includes("localhost"))){
     res.setHeader('Access-Control-Allow-Origin', origin)
     next()
