@@ -83,9 +83,7 @@ app.use(function(req, res, next) {
       origin = "https://"+origin 
     }
   }
-  // FIXME for now for development we are specifically supporting localhost client origins.
-  // We probably want a switch for this so we can turn it on/off for dev/prod
-  if(allowedOrigins.includes(origin) || origin.includes("localhost")){
+  if(allowedOrigins.includes(origin) || (process.env.LOCALHOSTMODE === "true" && origin.includes("localhost"))){
     res.setHeader('Access-Control-Allow-Origin', origin)
     next()
   }
