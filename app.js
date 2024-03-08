@@ -74,7 +74,7 @@ app.use(function(req, res, next) {
     req.headers.origin ? req.headers.origin 
     : req.headers.referrer ? req.headers.referrer
     : req.headers.host ?? "unknown"
-  if(origin.endWith("/")) origin = origin.slice(0, -1)
+  if(origin.endsWith("/")) origin = origin.slice(0, -1)
   console.log("REQUEST ORIGIN")
   console.log(origin)
   const allowedOrigins = process.env.SERVICES_ORIGINS.split(",")
@@ -89,14 +89,12 @@ app.use(function(req, res, next) {
 
   if(allowedOrigins.includes(origin) || (process.env.OPEN_API_CORS === "true" && origin.includes("localhost"))){
     res.setHeader('Access-Control-Allow-Origin', origin)
-    next()
   }
   else{
     // No CORS for you.
     res.removeHeader("Access-Control-Allow-Origin")
-    res.status(405)
-    res.send()
   }
+  next()
 })
 
 app.use('/', indexRouter)

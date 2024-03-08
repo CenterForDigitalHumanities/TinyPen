@@ -11,7 +11,7 @@ router.post('/', async (req, res, next) => {
     const createOptions = {
       json: createBody,
       headers: {
-        'user-agent': 'Tiny-Pen',
+        'user-agent': 'TinyPen',
         'Origin': process.env.ORIGIN,
         'Authorization': `Bearer ${process.env.ACCESS_TOKEN}`, // not required for query
         'Content-Type' : "application/json;charset=utf-8"

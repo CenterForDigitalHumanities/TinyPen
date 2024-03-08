@@ -12,7 +12,7 @@ router.delete('/', async (req, res, next) => {
     const deleteOptions = {
       json: deleteBody,
       headers: {
-        'user-agent': 'Tiny-Pen',
+        'user-agent': 'TinyPen',
         'Origin': process.env.ORIGIN,
         'Authorization': `Bearer ${process.env.ACCESS_TOKEN}`,
         'Content-Type' : "application/json"
@@ -37,7 +37,7 @@ router.delete('/:id', async (req, res, next) => {
     const deleteURL = `${process.env.RERUM_API_ADDR}delete/${req.params.id}`
     const deleteOptions = {
       headers: {
-        'user-agent': 'Tiny-Pen',
+        'user-agent': 'TinyPen',
         'Authorization': `Bearer ${process.env.ACCESS_TOKEN}`,
       }
     }
