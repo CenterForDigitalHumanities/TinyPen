@@ -15,45 +15,10 @@ jobs:
           target_branch: ${{ github.head_ref }}
           github_token: ${{ secrets.BRY_PAT }}
           message: Merge main into this branch to deploy to dev for testing.
-  test:
-    needs: merge-branch
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
-      - name: Create .env from secrets
-        uses: SpicyPizza/create-envfile@v2
-        with:
-          envkey_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-          envkey_REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
-          envkey_RERUM_REGISTRATION_URL: ${{ secrets.RERUM_REGISTRATION_URL }}
-          envkey_RERUM_API_ADDR: ${{ secrets.RERUM_API_ADDR }}
-          envkey_RERUM_ID_PATTERN: ${{ secrets.RERUM_ID_PATTERN }}
-          envkey_RERUM_ACCESS_TOKEN_URL: ${{ secrets.RERUM_ACCESS_TOKEN_URL }}
-      - name: Setup Node.js
-        uses: actions/setup-node@master
-        with:
-          node-version: "21"
-      - name: Cache node modules
-        uses: actions/cache@master
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{
-            hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-      - name: Install dependencies and run the test
-        run: |
-          npm install
-          npm run runtest
   deploy:
     if: github.event.pull_request.draft == false
     needs:
       - merge-branch
-      - test
     strategy:
       matrix:
         machines:
@@ -67,9 +32,14 @@ jobs:
               mkdir -p /srv/node/logs
               touch /srv/node/logs/tinypen.txt
           fi
-          cd /srv/node/tiny-node/
-          pm2 stop tinyPen
-          git stash
-          git pull
-          npm install
-          pm2 start -i max bin/tinyPen.js
+          cd /srv/node/tinyPen/
+          echo "Private Project Don't Work Without Login"
+          echo "When this isn't private do the following"
+          echo "pm2 stop tinyPen"
+          echo "git stash"
+          echo "git checkout main"
+          echo "git pull"
+          echo "git checkout $GITHUB_HEAD_REF"
+          echo "git pull"
+          echo "npm install"
+          echo "pm2 start -i max bin/tinyPen.js"
