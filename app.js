@@ -86,7 +86,7 @@ if(corsAllowedOrigins !== "*") {
         origin = "https://"+origin 
       }
     }
-    // Note localhost is registered with process.env.SERVICES_ORIGINS.  Doing it here lets us support all ports.
+    // Note localhost is not registered with process.env.SERVICES_ORIGINS.  Doing it here lets us support all ports.
     if(allowedOrigins.includes(origin) || (process.env.LOCALHOSTMODE === "true" && origin.includes("localhost"))){
       res.setHeader('Access-Control-Allow-Origin', origin)
     }
