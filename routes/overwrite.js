@@ -19,6 +19,7 @@ router.put('/', async (req, res, next) => {
       json: overwriteBody,
       headers: {
         'user-agent': 'Tiny-Pen',
+        'Origin': process.env.ORIGIN,
         'Authorization': `Bearer ${process.env.ACCESS_TOKEN}`,
         'Content-Type' : "application/json;charset=utf-8"
       }
