@@ -6,7 +6,6 @@ const got = require('got')
 router.post('/', async (req, res, next) => {
   const lim = req.query.limit ?? 10
   const skip = req.query.skip ?? 0
-  console.log("QUERY")
   try {
     // check body for JSON
     JSON.stringify(req.body)

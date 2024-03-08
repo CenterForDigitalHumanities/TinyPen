@@ -33,7 +33,7 @@ app.use(express.static(path.join(__dirname, 'public')))
  *  Note that origin must be a string in the response.
  *  The cors() middleware allows registration via an Array of origins.
  *  However, Access-Control-Allow-Origin response headers must be a string with a single origin URL or '*'
- *  If we have multiple origins, we need to determine the origin in downstream routes. 
+ *  If we have multiple origins, we need to determine the origin in downstream middleware. 
  */
 const corsAllowedOrigins = process.env.OPEN_API_CORS == "true" ? "*" : process.env.SERVICES_ORIGINS.split(",")
 app.use(cors({
@@ -69,33 +69,33 @@ app.use(cors({
  * The protocol must be a part of the Access-Control-Allow-Origin value if it is not '*'.
  * If the protocol written to the header does not match that of the origin client, origin clients will experience a CORS error.
  */ 
-app.use(function(req, res, next) {
-  let origin = 
-    req.headers.origin ? req.headers.origin 
-    : req.headers.referrer ? req.headers.referrer
-    : req.headers.host ?? "unknown"
-  if(origin.endsWith("/")) origin = origin.slice(0, -1)
-  console.log("REQUEST ORIGIN")
-  console.log(origin)
-  const allowedOrigins = process.env.SERVICES_ORIGINS.split(",")
-  if(!(origin.startsWith("http://") || origin.startsWith("https://"))){
-    if(origin.includes("localhost") || origin.includes("127.0.0.1")) origin = "http://"+origin
-    else{ 
-      // Instead of erroring, we pretend they are HTTPS as this is the most likely scenario
-      // If we are wrong, browsers with throw a CORS error like they should have anyway.
-      origin = "https://"+origin 
+if(corsAllowedOrigins !== "*") {
+  app.use(function(req, res, next) {
+    let origin = 
+      req.headers.origin ? req.headers.origin 
+      : req.headers.referrer ? req.headers.referrer.slice(0, -1)
+      : req.headers.host ?? "unknown"
+    // The origin must not end with /.  Referrer values may end with /.
+    if(origin.endsWith("/")) origin = origin.slice(0, -1)
+    const allowedOrigins = process.env.SERVICES_ORIGINS.split(",")
+    if(!(origin.startsWith("http://") || origin.startsWith("https://"))){
+      if(origin.includes("localhost") || origin.includes("127.0.0.1")) origin = "http://"+origin
+      else{ 
+        // Instead of erroring, we pretend they are HTTPS as this is the most likely scenario
+        // If we are wrong, browsers with throw a CORS error like they should have anyway.
+        origin = "https://"+origin 
+      }
     }
-  }
-
-  if(allowedOrigins.includes(origin) || (process.env.OPEN_API_CORS === "true" && origin.includes("localhost"))){
-    res.setHeader('Access-Control-Allow-Origin', origin)
-  }
-  else{
-    // No CORS for you.
-    res.removeHeader("Access-Control-Allow-Origin")
-  }
-  next()
-})
+    // Note localhost is registered with process.env.SERVICES_ORIGINS.  Doing it here lets us support all ports.
+    if(allowedOrigins.includes(origin) || (process.env.LOCALHOSTMODE === "true" && origin.includes("localhost"))){
+      res.setHeader('Access-Control-Allow-Origin', origin)
+    }
+    else{
+      // No CORS for you.
+      res.removeHeader("Access-Control-Allow-Origin")
+    }
+  })
+}
 
 app.use('/', indexRouter)
 
