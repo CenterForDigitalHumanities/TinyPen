@@ -73,9 +73,9 @@ if(corsAllowedOrigins !== "*") {
   app.use(function(req, res, next) {
     let origin = 
       req.headers.origin ? req.headers.origin 
-      : req.headers.referrer ? req.headers.referrer.slice(0, -1)
+      : req.headers.referrer ? req.headers.referrer
       : req.headers.host ?? "unknown"
-    // The origin must not end with /.  Referrer values may end with /.
+    // The origin must not end with /
     if(origin.endsWith("/")) origin = origin.slice(0, -1)
     const allowedOrigins = process.env.SERVICES_ORIGINS.split(",")
     if(!(origin.startsWith("http://") || origin.startsWith("https://"))){
