@@ -6,7 +6,6 @@ const got = require('got')
 router.post('/', async (req, res, next) => {
   const lim = req.query.limit ?? 10
   const skip = req.query.skip ?? 0
-
   try {
     // check body for JSON
     JSON.stringify(req.body)
@@ -20,8 +19,9 @@ router.post('/', async (req, res, next) => {
     const queryOptions = {
       json: queryBody,
       headers: {
-        'user-agent': 'Tiny-Pen',
-        'Authorization': `Bearer ${process.env.RERUM_TOKEN}`, // not required for query
+        'user-agent': 'TinyPen',
+        'Origin': process.env.ORIGIN,
+        'Authorization': `Bearer ${process.env.ACCESS_TOKEN}`, // not required for query
         'Content-Type' : "application/json;charset=utf-8"
       }
     }

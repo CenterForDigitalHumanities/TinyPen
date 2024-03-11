@@ -1,12 +1,13 @@
-var express = require('express');
-var router = express.Router();
-const path = require('path');
+var express = require('express')
+var router = express.Router()
+const path = require('path')
 
 const root = path.join(__dirname,"../public")
 
-/* GET home page. */
+/* There is no home page for now */
 router.get('/', function(req, res, next) {
-  res.sendFile('index.html', {root} )
-});
+  res.status(404)
+  next()
+})
 
-module.exports = router;
+module.exports = router
