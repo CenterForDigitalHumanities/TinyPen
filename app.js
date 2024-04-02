@@ -94,6 +94,7 @@ if(corsAllowedOrigins !== "*") {
       // No CORS for you.
       res.removeHeader("Access-Control-Allow-Origin")
     }
+    next()
   })
 }
 

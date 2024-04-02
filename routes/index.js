@@ -6,8 +6,7 @@ const root = path.join(__dirname,"../public")
 
 /* There is no home page for now */
 router.get('/', function(req, res, next) {
-  res.status(404)
-  next()
+  res.status(404).send()
 })
 
 module.exports = router
