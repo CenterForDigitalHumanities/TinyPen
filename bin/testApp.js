@@ -7,25 +7,27 @@
 /**
  * Module dependencies.
  */
-const jest = require('jest')
-const runCLI = require('jest-cli')
-//const defaults = require('../jest.config.js')
-var app = require('../app')
-var http = require('http')
+import dotenv from "dotenv"
+const storedEnv = dotenv.config()
+
+import jest from "jest"
+import runCLI from "jest-cli"
+import app from "../app.js"
+import http from "http"
 
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort('3333')
+const port = normalizePort('3333')
 app.set('port', port)
 
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app)
+const server = http.createServer(app)
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -72,18 +74,18 @@ function onError(error) {
     throw error
   }
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port
+  const bind = typeof port === 'string'
+    ? `Pipe ${port}`
+    : `Port ${port}`
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
     case 'EACCES':
-      console.error(bind + ' requires elevated privileges')
+      console.error(`${bind} requires elevated privileges`)
       process.exit(1)
       break
     case 'EADDRINUSE':
-      console.error(bind + ' is already in use')
+      console.error(`${bind} is already in use`)
       process.exit(1)
       break
     default:
@@ -96,7 +98,7 @@ function onError(error) {
  */
 
 async function onListening() {
-  console.log("LISTENING ON "+port)
+  console.log(`LISTENING ON ${port}`)
   jest.runCLI(
     {
       "colors" : "true"
@@ -113,4 +115,3 @@ async function onListening() {
       }
   })
 }
-

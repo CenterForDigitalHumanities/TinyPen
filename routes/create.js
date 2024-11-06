@@ -1,15 +1,14 @@
-const express = require('express')
+import express from "express"
 const router = express.Router()
-const got = require('got')
 
 /* POST a create to the thing. */
 router.post('/', async (req, res, next) => {
   try {
     // check body for JSON
-    JSON.stringify(req.body)
-    const createBody = req.body
+    const createBody = JSON.stringify(req.body)
     const createOptions = {
-      json: createBody,
+      method: 'POST',
+      body: createBody,
       headers: {
         'user-agent': 'TinyPen',
         'Origin': process.env.ORIGIN,
@@ -18,15 +17,15 @@ router.post('/', async (req, res, next) => {
       }
     }
     const createURL = `${process.env.RERUM_API_ADDR}create`
-    const result = await got.post(createURL, createOptions).json()
+    const result = await fetch(createURL, createOptions).then(res => res.json())
     res.setHeader("Location", result["@id"])
     res.status(201)
     res.send(result)
   }
   catch (err) {
     console.log(err)
-    res.status(500).send("Caught Error:" + err)
+    res.status(500).send(`Caught Error:${err}`)
   }
 })
 
-module.exports = router
+export default router
