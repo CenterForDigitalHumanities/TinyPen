@@ -94,7 +94,6 @@ if(corsAllowedOrigins !== "*") {
   })
 }
 
-app.use('/', indexRouter)
 
 //New available usage without /app
 app.use('/query', queryRouter)
@@ -104,7 +103,6 @@ app.use('/delete', deleteRouter)
 app.use('/overwrite', overwriteRouter)
 
 //Legacy support for /app
-app.use('/app', indexRouter)
 app.use('/app/query', queryRouter)
 app.use('/app/create', createRouter)
 app.use('/app/update', updateRouter)
