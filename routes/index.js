@@ -1,12 +1,9 @@
-var express = require('express')
-var router = express.Router()
-const path = require('path')
-
-const root = path.join(__dirname,"../public")
+import express from 'express'
+const router = express.Router()
 
 /* There is no home page for now */
-router.get('/', function(req, res, next) {
+router.get('/', (req, res, next) => {
   res.status(404).send()
 })
 
-module.exports = router
+export default router

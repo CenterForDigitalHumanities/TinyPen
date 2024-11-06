@@ -1,32 +1,28 @@
 #!/usr/bin/env node
-const createError = require('http-errors')
-const express = require('express')
-const path = require('path')
-const cookieParser = require('cookie-parser')
-const logger = require('morgan')
-const cors = require('cors')
-const dotenv = require('dotenv')
-const dotenvExpand = require('dotenv-expand')
-const storedEnv = dotenv.config()
-dotenvExpand.expand(storedEnv)
-require('./tokens.js')
-const indexRouter = require('./routes/index')
-const queryRouter = require('./routes/query')
-const createRouter = require('./routes/create')
-const updateRouter = require('./routes/update')
-const deleteRouter = require('./routes/delete')
-const overwriteRouter = require('./routes/overwrite')
-const app = express()
+import createError from "http-errors"
+import express from "express"
+import path from "path"
+import { fileURLToPath } from "url"
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+import indexRouter from "./routes/index.js"
+import queryRouter from "./routes/query.js"
+import createRouter from "./routes/create.js"
+import updateRouter from "./routes/update.js"
+import deleteRouter from "./routes/delete.js"
+import overwriteRouter from "./routes/overwrite.js"
+import cors from "cors"
+import {updateExpiredToken } from "./tokens.js"
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'))
-app.set('view engine', 'pug')
-
-app.use(logger('dev'))
+// Check for and update token on app start
+updateExpiredToken()
+let app = express()
 app.use(express.json())
-
+if(process.env.OPEN_API_CORS !== "false") { 
+  // This enables CORS for all requests. We may want to update this in the future and only apply to some routes.
+  app.use(cors()) 
+}
 app.use(express.urlencoded({ extended: false }))
-app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
 
 /**
@@ -98,8 +94,6 @@ if(corsAllowedOrigins !== "*") {
   })
 }
 
-app.use('/', indexRouter)
-
 //New available usage without /app
 app.use('/query', queryRouter)
 app.use('/create', createRouter)
@@ -108,7 +102,6 @@ app.use('/delete', deleteRouter)
 app.use('/overwrite', overwriteRouter)
 
 //Legacy support for /app
-app.use('/app', indexRouter)
 app.use('/app/query', queryRouter)
 app.use('/app/create', createRouter)
 app.use('/app/update', updateRouter)
@@ -128,7 +121,7 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500)
-  res.render('error')
+  res.send(err.message)
 })
 
-module.exports = app
+export default app

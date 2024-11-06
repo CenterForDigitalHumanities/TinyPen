@@ -1,22 +1,20 @@
-const express = require('express')
+import express from "express"
 const router = express.Router()
-const got = require('got')
 
 /* PUT an overwrite to the thing. */
 router.put('/', async (req, res, next) => {
 
   try {
-    // check body for JSON
-    JSON.stringify(req.body)
-    const overwriteBody = req.body
 
     // check for @id; any value is valid
-    if (!(overwriteBody['@id'] ?? overwriteBody.id)) {
-      throw Error("No record id to overwrite! (https://centerfordigitalhumanities.github.io/rerum_server/API.html#overwrite)")
+    if (!(req.body['@id'] ?? req.body.id)) {
+      throw Error("No record id to overwrite! (https://store.rerum.io/API.html#overwrite)")
     }
 
+    const overwriteBody = JSON.stringify(req.body)
     const overwriteOptions = {
-      json: overwriteBody,
+      method: 'PUT',
+      body: overwriteBody,
       headers: {
         'user-agent': 'TinyPen',
         'Origin': process.env.ORIGIN,
@@ -25,7 +23,7 @@ router.put('/', async (req, res, next) => {
       }
     }
     const overwriteURL = `${process.env.RERUM_API_ADDR}overwrite`
-    const result = await got.put(overwriteURL, overwriteOptions).json()
+    const result = await fetch(overwriteURL, overwriteOptions).then(resp => resp.json())
     res.status(200)
     res.send(result)
   }
@@ -35,4 +33,4 @@ router.put('/', async (req, res, next) => {
   }
 })
 
-module.exports = router
+export default router

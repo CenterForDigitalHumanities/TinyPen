@@ -1,22 +1,19 @@
-const express = require('express')
+import express from "express"
 const router = express.Router()
-const got = require('got')
 
 /* PUT an update to the thing. */
 router.put('/', async (req, res, next) => {
 
   try {
-    // check body for JSON
-    JSON.stringify(req.body)
-    const updateBody = req.body
-
     // check for @id; any value is valid
-    if (!(updateBody['@id'] ?? updateBody.id)) {
-      throw Error("No record id to update! (https://centerfordigitalhumanities.github.io/rerum_server/API.html#update)")
+    if (!(req.body['@id'] ?? req.body.id)) {
+      throw Error("No record id to overwrite! (https://store.rerum.io/API.html#overwrite)")
     }
 
+    const updateBody = JSON.stringify(req.body)
     const updateOptions = {
-      json: updateBody,
+      method: 'PUT',
+      body: updateBody,
       headers: {
         'user-agent': 'TinyPen',
         'Origin': process.env.ORIGIN,
@@ -25,7 +22,7 @@ router.put('/', async (req, res, next) => {
       }
     }
     const updateURL = `${process.env.RERUM_API_ADDR}update`
-    const result = await got.put(updateURL, updateOptions).json()
+    const result = await fetch(updateURL, updateOptions).then(resp => resp.json())
     res.status(200)
     res.send(result)
   }
@@ -35,4 +32,4 @@ router.put('/', async (req, res, next) => {
   }
 })
 
-module.exports = router
+export default router

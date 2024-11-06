@@ -1,16 +1,16 @@
-const express = require('express')
+import express from "express"
 const router = express.Router()
-const got = require('got')
 
 /* Legacy delete pattern w/body */
 
 /* DELETE a delete to the thing. */
 router.delete('/', async (req, res, next) => {
   try {
-    const deleteBody = req.body ?? {}
+    const deleteBody = JSON.stringify(req.body)
 
     const deleteOptions = {
-      json: deleteBody,
+      method: 'DELETE',
+      body: deleteBody,
       headers: {
         'user-agent': 'TinyPen',
         'Origin': process.env.ORIGIN,
@@ -18,15 +18,14 @@ router.delete('/', async (req, res, next) => {
         'Content-Type' : "application/json"
       }
     }
-    console.log(deleteBody)
     const deleteURL = `${process.env.RERUM_API_ADDR}delete`
-    const result = await got.delete(deleteURL, deleteOptions).text()
+    const result = await fetch(deleteURL, deleteOptions).then(res => res.text())
     res.status(204)
     res.send(result)
   }
   catch (err) {
     console.log(err)
-    res.status(500).send("Caught Error:" + err)
+    res.status(500).send(`Caught Error:${err}`)
   }
 })
 
@@ -36,19 +35,20 @@ router.delete('/:id', async (req, res, next) => {
   
     const deleteURL = `${process.env.RERUM_API_ADDR}delete/${req.params.id}`
     const deleteOptions = {
+      method: "DELETE",
       headers: {
         'user-agent': 'TinyPen',
-        'Authorization': `Bearer ${process.env.ACCESS_TOKEN}`,
+        'Authorization': `Bearer ${process.env.ACCESS_TOKEN}`
       }
     }
-    const result = await got.delete(deleteURL, deleteOptions).text()
+    const result = await fetch(deleteURL, deleteOptions).then(resp => resp.text())
     res.status(204)
     res.send(result)
   }
   catch (err) {
     console.log(err)
-    res.status(500).send("Caught Error:" + err)
+    res.status(500).send(`Caught Error:${err}`)
   }
 })
 
-module.exports = router
+export default router
