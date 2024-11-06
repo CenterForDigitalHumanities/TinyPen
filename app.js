@@ -94,7 +94,6 @@ if(corsAllowedOrigins !== "*") {
   })
 }
 
-
 //New available usage without /app
 app.use('/query', queryRouter)
 app.use('/create', createRouter)
