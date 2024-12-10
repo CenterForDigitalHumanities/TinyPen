@@ -6,6 +6,8 @@ jobs:
   deploy:
     strategy:
       matrix:
+        node-version:
+          - 22
         machines:
           - vlcdhprdp01
     runs-on: ${{ matrix.machines }}

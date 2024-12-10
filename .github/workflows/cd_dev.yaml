@@ -21,6 +21,8 @@ jobs:
       - merge-branch
     strategy:
       matrix:
+        node-version:
+          - 22
         machines:
           - vlcdhp02
     runs-on: ${{ matrix.machines }}
