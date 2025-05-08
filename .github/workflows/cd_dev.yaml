@@ -34,6 +34,7 @@ jobs:
               mkdir -p /srv/node/logs
               touch /srv/node/logs/tinypen.txt
           fi
+          echo $USER
           cd /srv/node/tinyPen/
           pm2 stop tinyPen
           git stash
