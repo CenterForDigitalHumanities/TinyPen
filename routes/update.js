@@ -23,6 +23,7 @@ router.put('/', async (req, res, next) => {
     }
     const updateURL = `${process.env.RERUM_API_ADDR}update`
     const result = await fetch(updateURL, updateOptions).then(resp => resp.json())
+    res.setHeader("Location", result["@id"] ?? result.id)
     res.status(200)
     res.send(result)
   }

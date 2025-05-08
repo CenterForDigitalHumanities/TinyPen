@@ -24,6 +24,7 @@ router.put('/', async (req, res, next) => {
     }
     const overwriteURL = `${process.env.RERUM_API_ADDR}overwrite`
     const result = await fetch(overwriteURL, overwriteOptions).then(resp => resp.json())
+    res.setHeader("Location", result["@id"] ?? result.id)
     res.status(200)
     res.send(result)
   }
