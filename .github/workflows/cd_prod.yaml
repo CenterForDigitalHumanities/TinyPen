@@ -20,6 +20,7 @@ jobs:
               touch /srv/node/logs/tinypen.txt
           fi
           echo $USER
+          echo $PATH
           which pm2
           cd /srv/node/tinyPen/
           pm2 stop tinyPen
