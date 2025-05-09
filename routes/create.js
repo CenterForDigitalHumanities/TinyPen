@@ -4,6 +4,10 @@ const router = express.Router()
 /* POST a create to the thing. */
 router.post('/', async (req, res, next) => {
   try {
+    // if an id is passed in, pop off the end to make it an _id
+    if (req.body.id) {
+      req.body._id = req.body.id
+    }
     // check body for JSON
     const createBody = JSON.stringify(req.body)
     const createOptions = {
