@@ -21,6 +21,7 @@ jobs:
           fi
           echo $USER
           echo $PATH
+          pwd
           which pm2
           cd /srv/node/tinyPen/
           pm2 stop tinyPen
