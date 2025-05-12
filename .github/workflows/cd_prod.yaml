@@ -19,10 +19,12 @@ jobs:
               mkdir -p /srv/node/logs
               touch /srv/node/logs/tinypen.txt
           fi
-          echo $USER
-          echo $PATH
-          pwd
           which pm2
+          which npm
+          which node
+          pm2 -v
+          npm -v
+          node -v
           cd /srv/node/tinyPen/
           pm2 stop tinyPen
           git stash
