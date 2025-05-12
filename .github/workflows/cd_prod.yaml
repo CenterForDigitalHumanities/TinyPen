@@ -23,6 +23,9 @@ jobs:
           echo $PATH
           pwd
           which pm2
+          which npm
+          which nvm
+          which node
           cd /srv/node/tinyPen/
           pm2 stop tinyPen
           git stash
