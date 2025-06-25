@@ -40,8 +40,8 @@ router.put('/', async (req, res, next) => {
     
     // Handle 409 conflict error for version mismatch
     if (response.status === 409) {
-      const errorData = await response.json()
-      return res.status(409).json(errorData)
+      const currentVersion = await response.json()
+      return res.status(409).json(currentVersion)
     }
 
     const result = await response.json()
