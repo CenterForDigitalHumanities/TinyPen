@@ -7,7 +7,7 @@ router.put('/', async (req, res, next) => {
   try {
     // check for @id; any value is valid
     if (!(req.body['@id'] ?? req.body.id)) {
-      throw Error("No record id to overwrite! (https://store.rerum.io/API.html#overwrite)")
+      throw Error("No record id to update! (https://store.rerum.io/API.html#update)")
     }
 
     const updateBody = JSON.stringify(req.body)
