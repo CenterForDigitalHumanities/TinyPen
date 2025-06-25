@@ -14,7 +14,7 @@ router.put('/', async (req, res, next) => {
 
     const overwriteOptions = {
       method: 'PUT',
-      body: overwriteBody,
+      body: JSON.stringify(overwriteBody),
       headers: {
         'user-agent': 'TinyPen',
         'Origin': process.env.ORIGIN,
