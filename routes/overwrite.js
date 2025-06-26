@@ -37,12 +37,18 @@ router.put('/', async (req, res, next) => {
 
     const overwriteURL = `${process.env.RERUM_API_ADDR}overwrite`
     const response = await fetch(overwriteURL, overwriteOptions)
+    .then(resp=>{
+      if (!resp.ok) throw resp
+    })
+    .catch(async err => {
+      // Handle 409 conflict error for version mismatch
+      if (err.status === 409) {
+        const currentVersion = await err.json()
+        return res.status(409).json(currentVersion)
+      }
+      throw new Error(`Error in overwrite request: ${err.status} ${err.statusText}`)
+    })
     
-    // Handle 409 conflict error for version mismatch
-    if (response.status === 409) {
-      const currentVersion = await response.json()
-      return res.status(409).json(currentVersion)
-    }
 
     const result = await response.json()
     res.setHeader("Location", result["@id"] ?? result.id)
