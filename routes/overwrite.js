@@ -39,6 +39,7 @@ router.put('/', async (req, res, next) => {
     const response = await fetch(overwriteURL, overwriteOptions)
     .then(resp=>{
       if (!resp.ok) throw resp
+      return resp
     })
     .catch(async err => {
       // Handle 409 conflict error for version mismatch
@@ -48,11 +49,12 @@ router.put('/', async (req, res, next) => {
       }
       throw new Error(`Error in overwrite request: ${err.status} ${err.statusText}`)
     })
-    
-
+    if(res.headersSent) return
     const result = await response.json()
-    res.setHeader("Location", result["@id"] ?? result.id)
-    res.status(200)
+    if(response.status === 200) {
+      res.setHeader("Location", result["@id"] ?? result.id)
+      res.status(200)
+    }
     res.send(result)
   }
   catch (err) {
