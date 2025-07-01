@@ -5,16 +5,16 @@ const router = express.Router()
 router.put('/', async (req, res, next) => {
 
   try {
-
+    
+    const overwriteBody = req.body
     // check for @id; any value is valid
-    if (!(req.body['@id'] ?? req.body.id)) {
+    if (!(overwriteBody['@id'] ?? overwriteBody.id)) {
       throw Error("No record id to overwrite! (https://store.rerum.io/API.html#overwrite)")
     }
 
-    const overwriteBody = JSON.stringify(req.body)
     const overwriteOptions = {
       method: 'PUT',
-      body: overwriteBody,
+      body: JSON.stringify(overwriteBody),
       headers: {
         'user-agent': 'TinyPen',
         'Origin': process.env.ORIGIN,
@@ -22,10 +22,39 @@ router.put('/', async (req, res, next) => {
         'Content-Type' : "application/json;charset=utf-8"
       }
     }
+
+    // Pass through If-Overwritten-Version header if present
+    const ifOverwrittenVersion = req.headers['if-overwritten-version']
+    if (ifOverwrittenVersion) {
+      overwriteOptions.headers['If-Overwritten-Version'] = ifOverwrittenVersion
+    }
+
+    // Check for __rerum.isOverwritten in body and use as If-Overwritten-Version header
+    const isOverwrittenValue = req.body?.__rerum?.isOverwritten
+    if (isOverwrittenValue) {
+      overwriteOptions.headers['If-Overwritten-Version'] = isOverwrittenValue
+    }
+
     const overwriteURL = `${process.env.RERUM_API_ADDR}overwrite`
-    const result = await fetch(overwriteURL, overwriteOptions).then(resp => resp.json())
-    res.setHeader("Location", result["@id"] ?? result.id)
-    res.status(200)
+    const response = await fetch(overwriteURL, overwriteOptions)
+    .then(resp=>{
+      if (!resp.ok) throw resp
+      return resp
+    })
+    .catch(async err => {
+      // Handle 409 conflict error for version mismatch
+      if (err.status === 409) {
+        const currentVersion = await err.json()
+        return res.status(409).json(currentVersion)
+      }
+      throw new Error(`Error in overwrite request: ${err.status} ${err.statusText}`)
+    })
+    if(res.headersSent) return
+    const result = await response.json()
+    if(response.status === 200) {
+      res.setHeader("Location", result["@id"] ?? result.id)
+      res.status(200)
+    }
     res.send(result)
   }
   catch (err) {
