@@ -1,10 +1,13 @@
 import express from "express"
+import { updateExpiredToken } from "../tokens.js"
 const router = express.Router()
 
 /* PUT an overwrite to the thing. */
 router.put('/', async (req, res, next) => {
 
   try {
+    // Check and refresh token if expired
+    await updateExpiredToken()
     
     const overwriteBody = req.body
     // check for @id; any value is valid

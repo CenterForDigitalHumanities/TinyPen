@@ -1,4 +1,5 @@
 import express from "express"
+import { updateExpiredToken } from "../tokens.js"
 const router = express.Router()
 
 /* Legacy delete pattern w/body */
@@ -6,6 +7,8 @@ const router = express.Router()
 /* DELETE a delete to the thing. */
 router.delete('/', async (req, res, next) => {
   try {
+    // Check and refresh token if expired
+    await updateExpiredToken()
     const deleteBody = JSON.stringify(req.body)
 
     const deleteOptions = {
@@ -32,7 +35,9 @@ router.delete('/', async (req, res, next) => {
 /* DELETE a delete to the thing. */
 router.delete('/:id', async (req, res, next) => {
   try {
-  
+    // Check and refresh token if expired
+    await updateExpiredToken()
+
     const deleteURL = `${process.env.RERUM_API_ADDR}delete/${req.params.id}`
     const deleteOptions = {
       method: "DELETE",

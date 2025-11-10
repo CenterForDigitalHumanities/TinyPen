@@ -1,10 +1,13 @@
 import express from "express"
+import { updateExpiredToken } from "../tokens.js"
 const router = express.Router()
 
 /* PUT an update to the thing. */
 router.put('/', async (req, res, next) => {
 
   try {
+    // Check and refresh token if expired
+    await updateExpiredToken()
     // check for @id; any value is valid
     if (!(req.body['@id'] ?? req.body.id)) {
       throw Error("No record id to update! (https://store.rerum.io/API.html#update)")

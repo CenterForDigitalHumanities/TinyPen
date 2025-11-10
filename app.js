@@ -15,7 +15,7 @@ import cors from "cors"
 import {updateExpiredToken } from "./tokens.js"
 
 // Check for and update token on app start
-updateExpiredToken()
+await updateExpiredToken()
 let app = express()
 app.use(express.json())
 if(process.env.OPEN_API_CORS !== "false") { 

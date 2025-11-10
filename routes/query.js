@@ -1,4 +1,5 @@
 import express from "express"
+import { updateExpiredToken } from "../tokens.js"
 const router = express.Router()
 
 /* POST a query to the thing. */
@@ -6,6 +7,8 @@ router.post('/', async (req, res, next) => {
   const lim = req.query.limit ?? 10
   const skip = req.query.skip ?? 0
   try {
+    // Check and refresh token if expired
+    await updateExpiredToken()
     // check body for JSON
     const queryBody = JSON.stringify(req.body)
     // check limit and skip for INT
