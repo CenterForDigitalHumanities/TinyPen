@@ -33,26 +33,29 @@ app.use(express.static(path.join(__dirname, 'public')))
  */
 const corsAllowedOrigins = process.env.OPEN_API_CORS == "true" ? "*" : process.env.SERVICES_ORIGINS.split(",")
 app.use(cors({
-    "methods" : "GET",
-    "allowedHeaders" : [
-      'Content-Type',
-      'Content-Length',
-      'Allow',
-      'Authorization',
-      'Location',
-      'ETag',
-      'Connection',
-      'Keep-Alive',
-      'Date',
-      'Cache-Control',
-      'Last-Modified',
-      'Link',
-      'X-HTTP-Method-Override'
-    ],
-    "exposedHeaders" : "*",
-    "origin" : corsAllowedOrigins,
-    "maxAge" : "600"
-}))
+      "methods" : "GET,OPTIONS,HEAD,PUT,PATCH,DELETE,POST",
+      "allowedHeaders" : [
+        'Content-Type',
+        'Content-Length',
+        'Allow',
+        'Authorization',
+        'Location',
+        'ETag',
+        'Connection',
+        'Keep-Alive',
+        'Date',
+        'Cache-Control',
+        'Last-Modified',
+        'Link',
+        'X-HTTP-Method-Override',
+        'Origin',
+        'Referrer',
+        'User-Agent'
+      ],
+      "exposedHeaders" : "*",
+      "origin" : corsAllowedOrigins,
+      "maxAge" : "600"
+    }))
 
 /**
  * Prepare the response Access-Control-Allow-Origin header before entering routes.
