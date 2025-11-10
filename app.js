@@ -12,10 +12,7 @@ import updateRouter from "./routes/update.js"
 import deleteRouter from "./routes/delete.js"
 import overwriteRouter from "./routes/overwrite.js"
 import cors from "cors"
-import { checkAccessToken } from "./tokens.js"
 
-// Check for and update token on app start
-checkAccessToken()
 let app = express()
 app.use(express.json())
 app.use(express.text())
