@@ -12,12 +12,13 @@ import updateRouter from "./routes/update.js"
 import deleteRouter from "./routes/delete.js"
 import overwriteRouter from "./routes/overwrite.js"
 import cors from "cors"
-import {updateExpiredToken } from "./tokens.js"
+import { checkAccessToken } from "./tokens.js"
 
 // Check for and update token on app start
-updateExpiredToken()
+checkAccessToken()
 let app = express()
 app.use(express.json())
+app.use(express.text())
 if(process.env.OPEN_API_CORS !== "false") { 
   // This enables CORS for all requests. We may want to update this in the future and only apply to some routes.
   app.use(cors()) 
