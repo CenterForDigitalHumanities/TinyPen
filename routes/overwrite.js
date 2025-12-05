@@ -1,8 +1,10 @@
 import express from "express"
+import checkAccessToken from "../tokens.js"
+
 const router = express.Router()
 
 /* PUT an overwrite to the thing. */
-router.put('/', async (req, res, next) => {
+router.put('/', checkAccessToken, async (req, res, next) => {
 
   try {
     

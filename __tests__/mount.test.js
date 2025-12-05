@@ -5,7 +5,7 @@ import app from "../app.js"
 beforeEach(() => {
   // This comes from tokens.js in the app.js import.  This apps tries to read env.ACCESS_TOKEN to refresh expired tokens.
   // We don't care whether or not the token is expired here, so let's just state we don't care about tokens in tests.
-  updateExpiredToken = jest.fn(() => true)
+  checkAccessToken = jest.fn((req, res, next) => next())
   isTokenExpired = jest.fn(() => false)
 })
 

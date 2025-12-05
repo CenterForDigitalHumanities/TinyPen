@@ -9,17 +9,17 @@
     "runtest": "node --experimental-vm-modules ./bin/testApp.js"
   },
   "dependencies": {
-    "@jest/globals": "^29.7.0",
+    "@jest/globals": "^30.2.0",
     "cors": "^2.8.5",
-    "debug": "~2.6.9",
-    "dotenv": "^10.0.0",
+    "debug": "^4.4.3",
+    "dotenv": "^17.2.3",
     "envfile": "^7.1.0",
-    "express": "^4.21.2",
-    "http-errors": "~1.6.3",
-    "jest-cli": "^29.7.0"
+    "express": "^5.1.0",
+    "http-errors": "^2.0.0",
+    "jest-cli": "^30.2.0"
   },
   "devDependencies": {
-    "jest": "^29.7.0",
-    "supertest": "^6.3.3"
+    "jest": "^30.2.0",
+    "supertest": "^7.1.4"
   }
 }

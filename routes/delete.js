@@ -1,10 +1,12 @@
 import express from "express"
+import checkAccessToken from "../tokens.js"
+
 const router = express.Router()
 
 /* Legacy delete pattern w/body */
 
 /* DELETE a delete to the thing. */
-router.delete('/', async (req, res, next) => {
+router.delete('/', checkAccessToken, async (req, res, next) => {
   try {
     const deleteBody = JSON.stringify(req.body)
 
