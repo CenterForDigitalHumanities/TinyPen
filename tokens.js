@@ -47,7 +47,7 @@ async function generateNewAccessToken() {
 
 /**
  * Check if the Access Token from the configuration file is up to date.
- * If it is expired programatically refresh the token and save the new token to the configuration file.
+ * If it is expired programmatically refresh the token and save the new token to the configuration file.
  *
  * This does not validate your access token, so you may still be rejected by 
  * your RERUM instance as unauthorized to request a new access token.
