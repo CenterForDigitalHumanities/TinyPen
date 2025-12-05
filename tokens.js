@@ -30,6 +30,9 @@ async function generateNewAccessToken() {
     .catch(err => {
         throw err
     })
+    if (!tokenObject?.access_token) {
+        throw new Error('Failed to retrieve access token from RERUM response')
+    }
     process.env.ACCESS_TOKEN = tokenObject.access_token
     try {
         const data = await fs.readFile('./.env', { encoding: 'utf8' })
