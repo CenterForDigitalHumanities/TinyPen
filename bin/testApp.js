@@ -10,8 +10,7 @@
 import dotenv from "dotenv"
 const storedEnv = dotenv.config()
 
-import jest from "jest"
-import runCLI from "jest-cli"
+import { runCLI } from '@jest/core'
 import app from "../app.js"
 import http from "http"
 
@@ -99,7 +98,7 @@ function onError(error) {
 
 async function onListening() {
   console.log(`LISTENING ON ${port}`)
-  jest.runCLI(
+  runCLI(
     {
       "colors" : "true"
     }, 
