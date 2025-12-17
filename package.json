@@ -14,8 +14,8 @@
     "debug": "^4.4.3",
     "dotenv": "^17.2.3",
     "envfile": "^7.1.0",
-    "express": "^5.1.0",
-    "http-errors": "^2.0.0",
+    "express": "^5.2.1",
+    "http-errors": "^2.0.1",
     "jest-cli": "^30.2.0"
   },
   "devDependencies": {
