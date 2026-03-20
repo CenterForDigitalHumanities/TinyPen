@@ -8,11 +8,20 @@ router.post('/', async (req, res, next) => {
   try {
     // check body for JSON
     const queryBody = JSON.stringify(req.body)
+    // If there is an empty query with [] or {}, we consider that a query for all data, 
+    // which we don't want to allow. We will throw a 400 error.
+    if (queryBody === '{}' || queryBody === '[]') {
+      const err = new Error("Empty query is not allowed. Please provide a valid query in the request body.")
+      err.status = 400
+      throw err
+    }
     // check limit and skip for INT
     if (isNaN(parseInt(lim) + parseInt(skip))
       || (lim < 0)
       || (skip < 0)) {
-      throw Error("`limit` and `skip` values must be positive integers or omitted.")
+      const err = new Error("`limit` and `skip` values must be positive integers or omitted.")
+      err.status = 400
+      throw err
     }
     const queryOptions = {
       method: 'POST',
@@ -31,7 +40,7 @@ router.post('/', async (req, res, next) => {
   }
   catch (err) { 
     console.log(err)
-    res.status(500).send("Caught " + err)
+    res.status(err.status ?? 500).send("Caught " + err.message)
   }
 })
 
