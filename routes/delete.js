@@ -8,6 +8,20 @@ const router = express.Router()
 /* DELETE a delete to the thing. */
 router.delete('/', checkAccessToken, async (req, res, next) => {
   try {
+    // Validate Content-Type since this route expects a JSON body.
+    // The global middleware only covers POST/PUT/PATCH — DELETE /:id has no body so we validate here.
+    const rawContentType = req.headers['content-type']
+    if (!rawContentType) {
+      return res.status(400).type('text/plain').send('Missing Content-Type header. Expected application/json or application/ld+json.')
+    }
+    if (rawContentType.includes(',')) {
+      return res.status(400).type('text/plain').send('Multiple Content-Type values are not allowed. Send a single Content-Type header.')
+    }
+    const mediaType = rawContentType.split(';')[0].trim().toLowerCase()
+    if (!['application/json', 'application/ld+json'].includes(mediaType)) {
+      return res.status(415).type('text/plain').send(`Unsupported Media Type: ${mediaType}. Expected application/json or application/ld+json.`)
+    }
+
     const deleteBody = JSON.stringify(req.body)
 
     const deleteOptions = {

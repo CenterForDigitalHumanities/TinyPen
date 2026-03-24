@@ -140,3 +140,40 @@ describe("Content-Type validation on PUT routes", () => {
     expect(res.status).toBe(400)
   })
 })
+
+describe("Content-Type validation on body-based DELETE route", () => {
+
+  it("returns 415 for text/plain on DELETE /delete __contentType", async () => {
+    const res = await request(app)
+      .delete("/delete")
+      .set("Content-Type", "text/plain")
+      .send("some text")
+    expect(res.status).toBe(415)
+    expect(res.text).toMatch(/Unsupported Media Type/i)
+  })
+
+  it("returns 400 for missing Content-Type on DELETE /delete __contentType", async () => {
+    const res = await request(app)
+      .delete("/delete")
+      .unset("Content-Type")
+      .send(Buffer.from(JSON.stringify({ id: "test" })))
+    expect(res.status).toBe(400)
+    expect(res.text).toMatch(/Missing Content-Type/i)
+  })
+
+  it("returns 400 for duplicate Content-Type on DELETE /delete __contentType", async () => {
+    const res = await request(app)
+      .delete("/delete")
+      .set("Content-Type", "application/json, text/html")
+      .send(JSON.stringify({ id: "test" }))
+    expect(res.status).toBe(400)
+    expect(res.text).toMatch(/Multiple Content-Type/i)
+  })
+
+  it("does not reject DELETE /delete/:id without Content-Type __contentType", async () => {
+    const res = await request(app)
+      .delete("/delete/some-fake-id")
+    expect(res.status).not.toBe(400)
+    expect(res.status).not.toBe(415)
+  })
+})
