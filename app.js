@@ -19,7 +19,7 @@ if(process.env.OPEN_API_CORS !== "false") {
   // This enables CORS for all requests. We may want to update this in the future and only apply to some routes.
   app.use(cors()) 
 }
-app.use(express.urlencoded({ extended: false }))
+
 app.use(express.static(path.join(__dirname, 'public')))
 
 /**

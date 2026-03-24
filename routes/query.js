@@ -46,7 +46,7 @@ router.post('/', async (req, res, next) => {
   }
   catch (err) { 
     console.log(err)
-    res.status(err.status ?? 500).type('text/plain').send("Caught " + err.message)
+    res.status(err.status ?? 500).type('text/plain').send(`Caught Error: ${err}`)
   }
 })
 
