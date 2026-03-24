@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * This module is used for any REST support functionality.  It is used as middleware and so
  * has access to the http module request and response objects, as well as next()

@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import express from "express"
 import rest from "../rest.js"
 

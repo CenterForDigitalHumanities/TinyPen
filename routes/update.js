@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import express from "express"
 import checkAccessToken from "../tokens.js"
 import rest from "../rest.js"

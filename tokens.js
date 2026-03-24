@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import dotenv from "dotenv"
 const storedEnv = dotenv.config()
 import fs from "node:fs/promises"
