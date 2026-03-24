@@ -19,9 +19,8 @@ router.delete('/:id', checkAccessToken, async (req, res, next) => {
         'Authorization': `Bearer ${process.env.ACCESS_TOKEN}`
       }
     }
-    const result = await fetch(deleteURL, deleteOptions).then(resp => resp.text())
-    res.status(204)
-    res.send(result)
+    await fetch(deleteURL, deleteOptions)
+    res.status(204).end()
   }
   catch (err) {
     console.log(err)
