@@ -1,8 +1,12 @@
+#!/usr/bin/env node
+
 import express from "express"
+import rest from "../rest.js"
+
 const router = express.Router()
 
 /* POST a query to the thing. */
-router.post('/', async (req, res, next) => {
+router.post('/', rest.jsonContent, async (req, res, next) => {
   const lim = req.query.limit ?? 10
   const skip = req.query.skip ?? 0
   try {

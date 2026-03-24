@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import express from "express"
 import checkAccessToken from "../tokens.js"
 

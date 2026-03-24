@@ -1,10 +1,13 @@
+#!/usr/bin/env node
+
 import express from "express"
 import checkAccessToken from "../tokens.js"
+import rest from "../rest.js"
 
 const router = express.Router()
 
 /* POST a create to the thing. */
-router.post('/', checkAccessToken, async (req, res, next) => {
+router.post('/', checkAccessToken, rest.jsonContent, async (req, res, next) => {
   try {
     // if an id is passed in, pop off the end to make it an _id
     if (req.body.id) {
