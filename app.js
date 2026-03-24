@@ -96,7 +96,7 @@ if(corsAllowedOrigins !== "*") {
 
 /**
  * Validate Content-Type header on requests that carry a body.
- * Rejects missing/blank/unsupported Content-Type with 415 and duplicate values with 400.
+ * Rejects missing, blank, duplicate, or unsupported Content-Type with 415.
  * Accepts application/json and application/ld+json (with optional parameters like charset).
  */
 const ALLOWED_CONTENT_TYPES = ['application/json', 'application/ld+json']
@@ -112,9 +112,9 @@ app.use(function validateContentType(req, res, next) {
   }
 
   // Node.js/Express joins duplicate Content-Type headers with ", "
-  // A valid Content-Type should never contain a comma — reject multi-value headers
+  // Content-Type is a singleton field per RFC 9110 §8.3 — multiple values are invalid
   if (rawContentType.includes(',')) {
-    return res.status(400).type('text/plain').send('Multiple Content-Type values are not allowed. Send a single Content-Type header.')
+    return res.status(415).type('text/plain').send('Unsupported Media Type. Multiple Content-Type values are not allowed. Send a single Content-Type header.')
   }
 
   // Strip parameters (e.g., ";charset=utf-8") and normalize

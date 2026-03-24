@@ -2,8 +2,8 @@
  * Content-Type Header Validation Tests
  *
  * Verifies that TinyPEN properly validates Content-Type headers
- * on incoming requests, returning 415 for missing/blank/unsupported types,
- * 400 for malformed multi-value headers, and passing through valid types.
+ * on incoming requests, returning 415 for missing, blank, duplicate,
+ * or unsupported types, and passing through valid types.
  */
 
 import request from "supertest"
@@ -98,13 +98,14 @@ describe("Content-Type validation on POST routes", () => {
     expect(res.text).toMatch(/Unsupported Media Type/i)
   })
 
-  it("returns 400 for duplicate/multi-value Content-Type headers __contentType __core", async () => {
+  it("returns 415 for duplicate/multi-value Content-Type headers __contentType __core", async () => {
     // Node.js joins duplicate headers with ", " so this simulates that
+    // Content-Type is a singleton field per RFC 9110 §8.3
     const res = await request(app)
       .post("/query")
       .set("Content-Type", "application/json, text/html")
       .send(JSON.stringify({ type: "test" }))
-    expect(res.status).toBe(400)
+    expect(res.status).toBe(415)
     expect(res.text).toMatch(/Multiple Content-Type/i)
   })
 })
