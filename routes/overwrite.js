@@ -5,7 +5,7 @@ import rest from "../rest.js"
 const router = express.Router()
 
 /* PUT an overwrite to the thing. */
-router.put('/', checkAccessToken, rest.jsonContent, async (req, res, next) => {
+router.put('/', rest.jsonContent, checkAccessToken, async (req, res, next) => {
 
   try {
     
