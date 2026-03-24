@@ -11,7 +11,7 @@
  * Accepts application/json and application/ld+json (with optional parameters like charset).
  */
 const ALLOWED_CONTENT_TYPES = ['application/json', 'application/ld+json']
-function jsonContent(req, res, next) {
+function verifyJsonContentType(req, res, next) {
   const rawContentType = req.headers['content-type']
   if (!rawContentType || !rawContentType.trim()) {
     return res.status(415).type('text/plain').send('Unsupported Media Type. Content-Type header is required. Expected application/json or application/ld+json.')
@@ -29,4 +29,4 @@ function jsonContent(req, res, next) {
   next()
 }
 
-export default { jsonContent }
+export default { verifyJsonContentType }

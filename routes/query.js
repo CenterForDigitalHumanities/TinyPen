@@ -4,7 +4,7 @@ import rest from "../rest.js"
 const router = express.Router()
 
 /* POST a query to the thing. */
-router.post('/', rest.jsonContent, async (req, res, next) => {
+router.post('/', rest.verifyJsonContentType, async (req, res, next) => {
   const lim = req.query.limit ?? 10
   const skip = req.query.skip ?? 0
   try {
