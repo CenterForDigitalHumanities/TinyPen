@@ -96,7 +96,7 @@ if(corsAllowedOrigins !== "*") {
 
 /**
  * Validate Content-Type header on requests that carry a body.
- * Rejects missing Content-Type with 400 and unsupported types with 415.
+ * Rejects missing/blank/unsupported Content-Type with 415 and duplicate values with 400.
  * Accepts application/json and application/ld+json (with optional parameters like charset).
  */
 const ALLOWED_CONTENT_TYPES = ['application/json', 'application/ld+json']
@@ -107,8 +107,8 @@ app.use(function validateContentType(req, res, next) {
 
   const rawContentType = req.headers['content-type']
 
-  if (!rawContentType) {
-    return res.status(400).type('text/plain').send('Missing Content-Type header. Expected application/json or application/ld+json.')
+  if (!rawContentType || !rawContentType.trim()) {
+    return res.status(415).type('text/plain').send('Unsupported Media Type. Content-Type header is required. Expected application/json or application/ld+json.')
   }
 
   // Node.js/Express joins duplicate Content-Type headers with ", "

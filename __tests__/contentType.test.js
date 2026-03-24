@@ -2,8 +2,8 @@
  * Content-Type Header Validation Tests
  *
  * Verifies that TinyPEN properly validates Content-Type headers
- * on incoming requests, returning 400 for missing headers,
- * 415 for unsupported types, and passing through valid types.
+ * on incoming requests, returning 415 for missing/blank/unsupported types,
+ * 400 for malformed multi-value headers, and passing through valid types.
  */
 
 import request from "supertest"
@@ -53,13 +53,22 @@ describe("Content-Type validation on POST routes", () => {
     expect(res.status).not.toBe(400)
   })
 
-  it("returns 400 for missing Content-Type on POST __contentType __core", async () => {
+  it("returns 415 for missing Content-Type on POST __contentType __core", async () => {
     const res = await request(app)
       .post("/query")
       .unset("Content-Type")
       .send(Buffer.from(JSON.stringify({ type: "test" })))
-    expect(res.status).toBe(400)
-    expect(res.text).toMatch(/Missing Content-Type/i)
+    expect(res.status).toBe(415)
+    expect(res.text).toMatch(/Unsupported Media Type/i)
+  })
+
+  it("returns 415 for blank Content-Type on POST __contentType", async () => {
+    const res = await request(app)
+      .post("/query")
+      .set("Content-Type", "")
+      .send(Buffer.from(JSON.stringify({ type: "test" })))
+    expect(res.status).toBe(415)
+    expect(res.text).toMatch(/Unsupported Media Type/i)
   })
 
   it("returns 415 for text/plain __contentType", async () => {
@@ -132,12 +141,12 @@ describe("Content-Type validation on PUT routes", () => {
     expect(res.status).toBe(415)
   })
 
-  it("returns 400 for missing Content-Type on PUT /overwrite __contentType", async () => {
+  it("returns 415 for missing Content-Type on PUT /overwrite __contentType", async () => {
     const res = await request(app)
       .put("/overwrite")
       .unset("Content-Type")
       .send(Buffer.from(JSON.stringify({ id: "test" })))
-    expect(res.status).toBe(400)
+    expect(res.status).toBe(415)
   })
 })
 
