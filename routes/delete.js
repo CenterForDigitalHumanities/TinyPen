@@ -17,7 +17,7 @@ router.delete('/', checkAccessToken, async (req, res, next) => {
         'user-agent': 'TinyPen',
         'Origin': process.env.ORIGIN,
         'Authorization': `Bearer ${process.env.ACCESS_TOKEN}`,
-        'Content-Type' : "application/json"
+        'Content-Type' : "application/json;charset=utf-8"
       }
     }
     const deleteURL = `${process.env.RERUM_API_ADDR}delete`

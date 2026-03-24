@@ -14,8 +14,7 @@ import overwriteRouter from "./routes/overwrite.js"
 import cors from "cors"
 
 let app = express()
-app.use(express.json())
-app.use(express.text())
+app.use(express.json({ type: ['application/json', 'application/ld+json'] }))
 if(process.env.OPEN_API_CORS !== "false") { 
   // This enables CORS for all requests. We may want to update this in the future and only apply to some routes.
   app.use(cors()) 
@@ -94,6 +93,39 @@ if(corsAllowedOrigins !== "*") {
     next()
   })
 }
+
+/**
+ * Validate Content-Type header on requests that carry a body.
+ * Rejects missing Content-Type with 400 and unsupported types with 415.
+ * Accepts application/json and application/ld+json (with optional parameters like charset).
+ */
+const ALLOWED_CONTENT_TYPES = ['application/json', 'application/ld+json']
+const BODY_METHODS = ['POST', 'PUT', 'PATCH']
+
+app.use(function validateContentType(req, res, next) {
+  if (!BODY_METHODS.includes(req.method)) return next()
+
+  const rawContentType = req.headers['content-type']
+
+  if (!rawContentType) {
+    return res.status(400).send('Missing Content-Type header. Expected application/json or application/ld+json.')
+  }
+
+  // Node.js/Express joins duplicate Content-Type headers with ", "
+  // A valid Content-Type should never contain a comma — reject multi-value headers
+  if (rawContentType.includes(',')) {
+    return res.status(400).send('Multiple Content-Type values are not allowed. Send a single Content-Type header.')
+  }
+
+  // Strip parameters (e.g., ";charset=utf-8") and normalize
+  const mediaType = rawContentType.split(';')[0].trim().toLowerCase()
+
+  if (!ALLOWED_CONTENT_TYPES.includes(mediaType)) {
+    return res.status(415).send(`Unsupported Media Type: ${mediaType}. Expected application/json or application/ld+json.`)
+  }
+
+  next()
+})
 
 //New available usage without /app
 app.use('/query', queryRouter)
