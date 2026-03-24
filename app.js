@@ -108,20 +108,20 @@ app.use(function validateContentType(req, res, next) {
   const rawContentType = req.headers['content-type']
 
   if (!rawContentType) {
-    return res.status(400).send('Missing Content-Type header. Expected application/json or application/ld+json.')
+    return res.status(400).type('text/plain').send('Missing Content-Type header. Expected application/json or application/ld+json.')
   }
 
   // Node.js/Express joins duplicate Content-Type headers with ", "
   // A valid Content-Type should never contain a comma — reject multi-value headers
   if (rawContentType.includes(',')) {
-    return res.status(400).send('Multiple Content-Type values are not allowed. Send a single Content-Type header.')
+    return res.status(400).type('text/plain').send('Multiple Content-Type values are not allowed. Send a single Content-Type header.')
   }
 
   // Strip parameters (e.g., ";charset=utf-8") and normalize
   const mediaType = rawContentType.split(';')[0].trim().toLowerCase()
 
   if (!ALLOWED_CONTENT_TYPES.includes(mediaType)) {
-    return res.status(415).send(`Unsupported Media Type: ${mediaType}. Expected application/json or application/ld+json.`)
+    return res.status(415).type('text/plain').send(`Unsupported Media Type: ${mediaType}. Expected application/json or application/ld+json.`)
   }
 
   next()
