@@ -47,7 +47,7 @@ router.put('/', rest.jsonContent, checkAccessToken, async (req, res, next) => {
         return res.status(409).json(currentVersion)
       }
       const errText = await response.text()
-      console.log(`RERUM OVERWRITE error ${response.status}: ${errText}`)
+      console.error(`RERUM OVERWRITE error ${response.status}: ${errText}`)
       return res.status(response.status).type('text/plain').send(errText)
     }
     const result = await response.json()
@@ -58,7 +58,7 @@ router.put('/', rest.jsonContent, checkAccessToken, async (req, res, next) => {
     res.send(result)
   }
   catch (err) {
-    console.log(err)
+    console.error(err)
     res.status(500).type('text/plain').send(`Caught Error: ${err}`)
   }
 })

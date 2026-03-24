@@ -39,7 +39,7 @@ router.post('/', rest.jsonContent, async (req, res, next) => {
     const rerumResponse = await fetch(queryURL, queryOptions)
     if (!rerumResponse.ok) {
       const errText = await rerumResponse.text()
-      console.log(`RERUM QUERY error ${rerumResponse.status}: ${errText}`)
+      console.error(`RERUM QUERY error ${rerumResponse.status}: ${errText}`)
       return res.status(rerumResponse.status).type('text/plain').send(errText)
     }
     const results = await rerumResponse.json()
@@ -47,7 +47,7 @@ router.post('/', rest.jsonContent, async (req, res, next) => {
     res.send(results)
   }
   catch (err) { 
-    console.log(err)
+    console.error(err)
     res.status(err.status ?? 500).type('text/plain').send(`Caught Error: ${err}`)
   }
 })

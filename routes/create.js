@@ -27,7 +27,7 @@ router.post('/', rest.jsonContent, checkAccessToken, async (req, res, next) => {
     const rerumResponse = await fetch(createURL, createOptions)
     if (!rerumResponse.ok) {
       const errText = await rerumResponse.text()
-      console.log(`RERUM CREATE error ${rerumResponse.status}: ${errText}`)
+      console.error(`RERUM CREATE error ${rerumResponse.status}: ${errText}`)
       return res.status(rerumResponse.status).type('text/plain').send(errText)
     }
     const result = await rerumResponse.json()
@@ -36,7 +36,7 @@ router.post('/', rest.jsonContent, checkAccessToken, async (req, res, next) => {
     res.send(result)
   }
   catch (err) {
-    console.log(err)
+    console.error(err)
     res.status(500).type('text/plain').send(`Caught Error: ${err}`)
   }
 })

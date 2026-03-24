@@ -23,13 +23,13 @@ router.delete('/:id', checkAccessToken, async (req, res, next) => {
     const rerumResponse = await fetch(deleteURL, deleteOptions)
     if (!rerumResponse.ok) {
       const errText = await rerumResponse.text()
-      console.log(`RERUM DELETE error ${rerumResponse.status}: ${errText}`)
+      console.error(`RERUM DELETE error ${rerumResponse.status}: ${errText}`)
       return res.status(rerumResponse.status).type('text/plain').send(errText)
     }
     res.status(204).end()
   }
   catch (err) {
-    console.log(err)
+    console.error(err)
     res.status(500).type('text/plain').send(`Caught Error: ${err}`)
   }
 })
