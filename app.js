@@ -6,7 +6,6 @@ import path from "path"
 import { fileURLToPath } from "url"
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-import indexRouter from "./routes/index.js"
 import queryRouter from "./routes/query.js"
 import createRouter from "./routes/create.js"
 import updateRouter from "./routes/update.js"
