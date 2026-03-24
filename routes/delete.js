@@ -16,10 +16,16 @@ router.delete('/:id', checkAccessToken, async (req, res, next) => {
       method: "DELETE",
       headers: {
         'user-agent': 'TinyPen',
+        'Origin': process.env.ORIGIN,
         'Authorization': `Bearer ${process.env.ACCESS_TOKEN}`
       }
     }
-    await fetch(deleteURL, deleteOptions)
+    const rerumResponse = await fetch(deleteURL, deleteOptions)
+    if (!rerumResponse.ok) {
+      const errText = await rerumResponse.text()
+      console.log(`RERUM DELETE error ${rerumResponse.status}: ${errText}`)
+      return res.status(rerumResponse.status).type('text/plain').send(errText)
+    }
     res.status(204).end()
   }
   catch (err) {
