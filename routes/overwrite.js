@@ -65,7 +65,7 @@ router.put('/', rest.verifyJsonContentType, checkAccessToken, async (req, res, n
         genericRerumNetworkError.status = 502
         throw genericRerumNetworkError
     })
-    if (!rerumResponse) return // 409 was already handled
+    if (rerumResponse === null) return // 409 was sent
     if (!(rerumResponse.id || rerumResponse["@id"])) {
         // A 200 with garbled data, call it a fail
         const genericRerumNetworkError = new Error(`500: ${overwriteURL} - A RERUM error occurred`)
