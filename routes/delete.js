@@ -20,7 +20,7 @@ router.delete('/:id', checkAccessToken, async (req, res, next) => {
         'Authorization': `Bearer ${process.env.ACCESS_TOKEN}`
       }
     }
-    const rerumResponse = await fetch(deleteURL, deleteOptions)
+    await fetch(deleteURL, deleteOptions)
     .then(async (resp) => {
         if (resp.ok) return
         // The response from RERUM indicates a failure, likely with a specific code and textual body
