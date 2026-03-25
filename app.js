@@ -116,7 +116,7 @@ app.use(function(req, res, next) {
 // error handler
 app.use(function(err, req, res, next) {
   res.status(err.status || 500)
-  res.send(err.message)
+  res.type('text/plain').send(err.message)
 })
 
 export default app

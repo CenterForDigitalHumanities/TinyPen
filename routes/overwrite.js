@@ -45,8 +45,10 @@ router.put('/', rest.verifyJsonContentType, checkAccessToken, async (req, res, n
         // Handle 409 conflict error for version mismatch (optimistic locking)
         if (resp.status === 409) {
             const conflictBody = await resp.json()
-            res.status(409).json(conflictBody)
-            return null
+            const err = new Error("Version conflict")
+            err.status = 409
+            err.body = conflictBody
+            throw err
         }
         // The response from RERUM indicates a failure, likely with a specific code and textual body
         let rerumErrorMessage
@@ -60,12 +62,11 @@ router.put('/', rest.verifyJsonContentType, checkAccessToken, async (req, res, n
         throw err
     })
     .catch(err => {
-        if (err.status === 502) throw err
+        if (err.status === 502 || err.status === 409) throw err
         const genericRerumNetworkError = new Error(`500: ${overwriteURL} - A RERUM error occurred`)
         genericRerumNetworkError.status = 502
         throw genericRerumNetworkError
     })
-    if (rerumResponse === null) return // 409 was sent
     if (!(rerumResponse.id || rerumResponse["@id"])) {
         // A 200 with garbled data, call it a fail
         const genericRerumNetworkError = new Error(`500: ${overwriteURL} - A RERUM error occurred`)
@@ -77,6 +78,9 @@ router.put('/', rest.verifyJsonContentType, checkAccessToken, async (req, res, n
   }
   catch (err) {
     console.error(err)
+    if (err.status === 409) {
+      return res.status(409).json(err.body)
+    }
     res.status(err.status ?? 500).type('text/plain').send(err.message ?? 'An error occurred')
   }
 })
