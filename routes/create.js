@@ -25,19 +25,37 @@ router.post('/', rest.verifyJsonContentType, checkAccessToken, async (req, res, 
     }
     const createURL = `${process.env.RERUM_API_ADDR}create`
     const rerumResponse = await fetch(createURL, createOptions)
-    if (!rerumResponse.ok) {
-      const errText = await rerumResponse.text()
-      console.error(`RERUM CREATE error ${rerumResponse.status}: ${errText}`)
-      return res.status(rerumResponse.status).type('text/plain').send(errText)
+    .then(async (resp) => {
+        if (resp.ok) return resp.json()
+        // The response from RERUM indicates a failure, likely with a specific code and textual body
+        let rerumErrorMessage
+        try {
+            rerumErrorMessage = `${resp.status ?? 500}: ${createURL} - ${await resp.text()}`
+        } catch (e) {
+            rerumErrorMessage = `500: ${createURL} - A RERUM error occurred`
+        }
+        const err = new Error(rerumErrorMessage)
+        err.status = 502
+        throw err
+    })
+    .catch(err => {
+        if (err.status === 502) throw err
+        const genericRerumNetworkError = new Error(`500: ${createURL} - A RERUM error occurred`)
+        genericRerumNetworkError.status = 502
+        throw genericRerumNetworkError
+    })
+    if (!(rerumResponse.id || rerumResponse["@id"])) {
+        // A 200 with garbled data, call it a fail
+        const genericRerumNetworkError = new Error(`500: ${createURL} - A RERUM error occurred`)
+        genericRerumNetworkError.status = 502
+        throw genericRerumNetworkError
     }
-    const result = await rerumResponse.json()
-    res.setHeader("Location", result["@id"] ?? result.id)
-    res.status(201)
-    res.send(result)
+    res.setHeader("Location", rerumResponse["@id"] ?? rerumResponse.id)
+    res.status(201).json(rerumResponse)
   }
   catch (err) {
     console.error(err)
-    res.status(500).type('text/plain').send(`Caught Error: ${err}`)
+    res.status(err.status ?? 500).type('text/plain').send(err.message ?? 'An error occurred')
   }
 })
 

@@ -21,16 +21,31 @@ router.delete('/:id', checkAccessToken, async (req, res, next) => {
       }
     }
     const rerumResponse = await fetch(deleteURL, deleteOptions)
-    if (!rerumResponse.ok) {
-      const errText = await rerumResponse.text()
-      console.error(`RERUM DELETE error ${rerumResponse.status}: ${errText}`)
-      return res.status(rerumResponse.status).type('text/plain').send(errText)
-    }
+    const rerumResponse = await fetch(deleteURL, deleteOptions)
+    .then(async (resp) => {
+        if (resp.ok) return resp.json()
+        // The response from RERUM indicates a failure, likely with a specific code and textual body
+        let rerumErrorMessage
+        try {
+            rerumErrorMessage = `${resp.status ?? 500}: ${updateURL} - ${await resp.text()}`
+        } catch (e) {
+            rerumErrorMessage = `500: ${updateURL} - A RERUM error occurred`
+        }
+        const err = new Error(rerumErrorMessage)
+        err.status = 502
+        throw err
+    })
+    .catch(err => {
+        if (err.status === 502) throw err
+        const genericRerumNetworkError = new Error(`500: ${updateURL} - A RERUM error occurred`)
+        genericRerumNetworkError.status = 502
+        throw genericRerumNetworkError
+    })
     res.status(204).end()
   }
   catch (err) {
     console.error(err)
-    res.status(500).type('text/plain').send(`Caught Error: ${err}`)
+    res.status(err.status ?? 500).type('text/plain').send(err.message ?? 'An error occurred')
   }
 })
 
