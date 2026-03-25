@@ -1,32 +1,63 @@
 /**
- * This module is used for any REST support functionality.  It is used as middleware and so
- * has access to the http module request and response objects, as well as next()
- *
- * @author thehabes
+ * Detects multiple MIME types smuggled into a single Content-Type header.
+ * The following are the cases that should result in a 415 (not a 500)
+
+  - application/json text/plain
+  - application/json, text/plain
+  - text/plain; application/json
+  - text/plain; a=b, application/json
+  - application/json; a=b; text/plain;
+  - application/json; a=b text/plain;
+  - application/json; charset=utf-8, text/plain
+  - application/json;
+ 
+ * @param {string} contentType - Lowercased Content-Type header value
+ * @returns {boolean} True if multiple MIME types are detected
  */
+const hasMultipleContentTypes = (contentType) => {
+    const segments = contentType.split(";")
+    const mimeSegment = segments[0].trim()
+    // No commas or spaces allowed in MIME types
+    if (mimeSegment.includes(",") || mimeSegment.includes(" ")) return true
+    // Parameter values are tokens (no spaces/commas) or quoted strings per RFC 2045.
+    // Commas or spaces outside quotes indicate a smuggled MIME type.
+    return segments.slice(1).some(segment => {
+        const trimmed = segment.trim()
+        if (!trimmed.includes("=")) return true
+        const withoutQuoted = trimmed.replace(/"[^"]*"/g, "")
+        if (withoutQuoted.includes(",") || withoutQuoted.includes(" ")) return true
+        return false
+    })
+}
 
 /**
- * Validate Content-Type header on requests.
- * Rejects missing, blank, duplicate, or unsupported Content-Type with 415.
- * Accepts application/json and application/ld+json (with optional parameters like charset).
+ * Middleware to verify Content-Type headers for endpoints receiving JSON bodies.
+ * Responds with a 415 Invalid Media Type for Content-Type headers that are not for JSON bodies.
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
  */
-const ALLOWED_CONTENT_TYPES = ['application/json', 'application/ld+json']
-function verifyJsonContentType(req, res, next) {
-  const rawContentType = req.headers['content-type']
-  if (!rawContentType || !rawContentType.trim()) {
-    return res.status(415).type('text/plain').send('Unsupported Media Type. Content-Type header is required. Expected application/json or application/ld+json.')
-  }
-  // Node.js/Express joins duplicate Content-Type headers with ", "
-  // Content-Type is a singleton field per RFC 9110 §8.3 — multiple values are invalid
-  if (rawContentType.includes(',')) {
-    return res.status(415).type('text/plain').send('Unsupported Media Type. Multiple Content-Type values are not allowed. Send a single Content-Type header.')
-  }
-  // Strip parameters (e.g., ";charset=utf-8") and normalize
-  const mediaType = rawContentType.split(';')[0].trim().toLowerCase()
-  if (!ALLOWED_CONTENT_TYPES.includes(mediaType)) {
-    return res.status(415).type('text/plain').send(`Unsupported Media Type: ${mediaType}. Expected application/json or application/ld+json.`)
-  }
-  next()
+const verifyJsonContentType = function (req, res, next) {
+    const contentType = (req.get("Content-Type") ?? "").toLowerCase()
+    const mimeType = contentType.split(";")[0].trim()
+    if (!mimeType) {
+        return next(utils.createExpressError({
+            statusCode: 415,
+            statusMessage: `Missing or empty Content-Type header.`
+        }))
+    }
+    if (hasMultipleContentTypes(contentType)) {
+        return next(utils.createExpressError({
+            statusCode: 415,
+            statusMessage: `Multiple Content-Type values are not allowed. Provide exactly one Content-Type header.`
+        }))
+    }
+    if (mimeType === "application/json" || mimeType === "application/ld+json") return next()
+    return next(utils.createExpressError({
+        statusCode: 415,
+        statusMessage: `Unsupported Content-Type: ${contentType}. This endpoint requires application/json or application/ld+json.`
+    }))
 }
 
 export default { verifyJsonContentType }
