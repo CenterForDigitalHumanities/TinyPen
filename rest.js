@@ -42,22 +42,19 @@ const verifyJsonContentType = function (req, res, next) {
     const contentType = (req.get("Content-Type") ?? "").toLowerCase()
     const mimeType = contentType.split(";")[0].trim()
     if (!mimeType) {
-        return next(utils.createExpressError({
-            statusCode: 415,
-            statusMessage: `Missing or empty Content-Type header.`
-        }))
+        const err = new Error(`Missing or empty Content-Type header.`)
+        err.status = 415
+        return next(err)
     }
     if (hasMultipleContentTypes(contentType)) {
-        return next(utils.createExpressError({
-            statusCode: 415,
-            statusMessage: `Multiple Content-Type values are not allowed. Provide exactly one Content-Type header.`
-        }))
+        const err = new Error(`Multiple Content-Type values are not allowed. Provide exactly one Content-Type header.`)
+        err.status = 415
+        return next(err)
     }
     if (mimeType === "application/json" || mimeType === "application/ld+json") return next()
-    return next(utils.createExpressError({
-        statusCode: 415,
-        statusMessage: `Unsupported Content-Type: ${contentType}. This endpoint requires application/json or application/ld+json.`
-    }))
+    const err = new Error(`Unsupported Content-Type: ${contentType}. This endpoint requires application/json or application/ld+json.`)
+    err.status = 415
+    return next(err)
 }
 
 export default { verifyJsonContentType }

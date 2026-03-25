@@ -42,9 +42,9 @@ router.post('/', rest.verifyJsonContentType, async (req, res, next) => {
         // The response from RERUM indicates a failure, likely with a specific code and textual body
         let rerumErrorMessage
         try {
-            rerumErrorMessage = `${resp.status ?? 500}: ${updateURL} - ${await resp.text()}`
+            rerumErrorMessage = `${resp.status ?? 500}: ${queryURL} - ${await resp.text()}`
         } catch (e) {
-            rerumErrorMessage = `500: ${updateURL} - A RERUM error occurred`
+            rerumErrorMessage = `500: ${queryURL} - A RERUM error occurred`
         }
         const err = new Error(rerumErrorMessage)
         err.status = 502
@@ -52,7 +52,7 @@ router.post('/', rest.verifyJsonContentType, async (req, res, next) => {
     })
     .catch(err => {
         if (err.status === 502) throw err
-        const genericRerumNetworkError = new Error(`500: ${updateURL} - A RERUM error occurred`)
+        const genericRerumNetworkError = new Error(`500: ${queryURL} - A RERUM error occurred`)
         genericRerumNetworkError.status = 502
         throw genericRerumNetworkError
     })

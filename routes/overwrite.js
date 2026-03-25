@@ -42,12 +42,18 @@ router.put('/', rest.verifyJsonContentType, checkAccessToken, async (req, res, n
     const rerumResponse = await fetch(overwriteURL, overwriteOptions)
     .then(async (resp) => {
         if (resp.ok) return resp.json()
+        // Handle 409 conflict error for version mismatch (optimistic locking)
+        if (resp.status === 409) {
+            const conflictBody = await resp.json()
+            res.status(409).json(conflictBody)
+            return null
+        }
         // The response from RERUM indicates a failure, likely with a specific code and textual body
         let rerumErrorMessage
         try {
-            rerumErrorMessage = `${resp.status ?? 500}: ${updateURL} - ${await resp.text()}`
+            rerumErrorMessage = `${resp.status ?? 500}: ${overwriteURL} - ${await resp.text()}`
         } catch (e) {
-            rerumErrorMessage = `500: ${updateURL} - A RERUM error occurred`
+            rerumErrorMessage = `500: ${overwriteURL} - A RERUM error occurred`
         }
         const err = new Error(rerumErrorMessage)
         err.status = 502
@@ -55,13 +61,14 @@ router.put('/', rest.verifyJsonContentType, checkAccessToken, async (req, res, n
     })
     .catch(err => {
         if (err.status === 502) throw err
-        const genericRerumNetworkError = new Error(`500: ${updateURL} - A RERUM error occurred`)
+        const genericRerumNetworkError = new Error(`500: ${overwriteURL} - A RERUM error occurred`)
         genericRerumNetworkError.status = 502
         throw genericRerumNetworkError
     })
+    if (!rerumResponse) return // 409 was already handled
     if (!(rerumResponse.id || rerumResponse["@id"])) {
         // A 200 with garbled data, call it a fail
-        const genericRerumNetworkError = new Error(`500: ${updateURL} - A RERUM error occurred`)
+        const genericRerumNetworkError = new Error(`500: ${overwriteURL} - A RERUM error occurred`)
         genericRerumNetworkError.status = 502
         throw genericRerumNetworkError
     }
@@ -70,7 +77,7 @@ router.put('/', rest.verifyJsonContentType, checkAccessToken, async (req, res, n
   }
   catch (err) {
     console.error(err)
-    res.status(500).type('text/plain').send(`Caught Error: ${err}`)
+    res.status(err.status ?? 500).type('text/plain').send(err.message ?? 'An error occurred')
   }
 })
 
