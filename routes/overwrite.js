@@ -12,7 +12,9 @@ router.put('/', rest.verifyJsonContentType, checkAccessToken, async (req, res, n
     const overwriteBody = req.body
     // check for @id; any value is valid
     if (!(overwriteBody['@id'] ?? overwriteBody.id)) {
-      throw Error("No record id to overwrite! (https://store.rerum.io/API.html#overwrite)")
+      const err = new Error("No record id to overwrite! (https://store.rerum.io/API.html#overwrite)")
+      err.status = 400
+      throw err
     }
 
     const overwriteOptions = {

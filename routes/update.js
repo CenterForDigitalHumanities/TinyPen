@@ -10,7 +10,9 @@ router.put('/', rest.verifyJsonContentType, checkAccessToken, async (req, res, n
   try {
     // check for @id; any value is valid
     if (!(req.body['@id'] ?? req.body.id)) {
-      throw Error("No record id to update! (https://store.rerum.io/API.html#update)")
+      const err = new Error("No record id to update! (https://store.rerum.io/API.html#update)")
+      err.status = 400
+      throw err
     }
 
     const updateBody = JSON.stringify(req.body)
