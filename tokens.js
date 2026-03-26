@@ -63,19 +63,18 @@ async function checkAccessToken(req, res, next) {
         // If the instance of TinyPen is not registered and does not have a token then there is nothing to check.
         // Move on through the middleware.  RERUM will tell you what you did wrong.
         if(!process?.env?.ACCESS_TOKEN) {
-            next()
-            return
+            return next()
         }
         if (isTokenExpired(process.env.ACCESS_TOKEN)) {
             console.log("TinyPen detected an expired access token.  Updating the token now.")
             await generateNewAccessToken()
         }
-        next()    
+        return next()
     }
     catch (err) {
         console.log("TinyPen encountered an error trying to refresh its access token")
         console.error(err)
-        next(err)
+        return next(err)
     }
     
 }
