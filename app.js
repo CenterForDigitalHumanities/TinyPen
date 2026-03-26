@@ -1,11 +1,11 @@
 #!/usr/bin/env node
+
 import createError from "http-errors"
 import express from "express"
 import path from "path"
 import { fileURLToPath } from "url"
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-import indexRouter from "./routes/index.js"
 import queryRouter from "./routes/query.js"
 import createRouter from "./routes/create.js"
 import updateRouter from "./routes/update.js"
@@ -14,13 +14,12 @@ import overwriteRouter from "./routes/overwrite.js"
 import cors from "cors"
 
 let app = express()
-app.use(express.json())
-app.use(express.text())
+app.use(express.json({ type: ['application/json', 'application/ld+json'] }))
 if(process.env.OPEN_API_CORS !== "false") { 
   // This enables CORS for all requests. We may want to update this in the future and only apply to some routes.
   app.use(cors()) 
 }
-app.use(express.urlencoded({ extended: false }))
+
 app.use(express.static(path.join(__dirname, 'public')))
 
 /**
@@ -117,7 +116,7 @@ app.use(function(req, res, next) {
 // error handler
 app.use(function(err, req, res, next) {
   res.status(err.status || 500)
-  res.send(err.message)
+  res.type('text/plain').send(err.message)
 })
 
 export default app

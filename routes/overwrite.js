@@ -1,17 +1,20 @@
 import express from "express"
 import checkAccessToken from "../tokens.js"
+import rest from "../rest.js"
 
 const router = express.Router()
 
 /* PUT an overwrite to the thing. */
-router.put('/', checkAccessToken, async (req, res, next) => {
+router.put('/', rest.verifyJsonContentType, checkAccessToken, async (req, res, next) => {
 
   try {
     
     const overwriteBody = req.body
     // check for @id; any value is valid
     if (!(overwriteBody['@id'] ?? overwriteBody.id)) {
-      throw Error("No record id to overwrite! (https://store.rerum.io/API.html#overwrite)")
+      const err = new Error("No record id to overwrite! (https://store.rerum.io/API.html#overwrite)")
+      err.status = 400
+      throw err
     }
 
     const overwriteOptions = {
@@ -38,30 +41,49 @@ router.put('/', checkAccessToken, async (req, res, next) => {
     }
 
     const overwriteURL = `${process.env.RERUM_API_ADDR}overwrite`
-    const response = await fetch(overwriteURL, overwriteOptions)
-    .then(resp=>{
-      if (!resp.ok) throw resp
-      return resp
+    const rerumResponse = await fetch(overwriteURL, overwriteOptions)
+    .then(async (resp) => {
+        if (resp.ok) return resp.json()
+        // Handle 409 conflict error for version mismatch (optimistic locking)
+        if (resp.status === 409) {
+            const conflictBody = await resp.json()
+            const err = new Error("Version conflict")
+            err.status = 409
+            err.body = conflictBody
+            throw err
+        }
+        // The response from RERUM indicates a failure, likely with a specific code and textual body
+        let rerumErrorMessage
+        try {
+            rerumErrorMessage = `${resp.status ?? 500}: ${overwriteURL} - ${await resp.text()}`
+        } catch (e) {
+            rerumErrorMessage = `500: ${overwriteURL} - A RERUM error occurred`
+        }
+        const err = new Error(rerumErrorMessage)
+        err.status = 502
+        throw err
     })
-    .catch(async err => {
-      // Handle 409 conflict error for version mismatch
-      if (err.status === 409) {
-        const currentVersion = await err.json()
-        return res.status(409).json(currentVersion)
-      }
-      throw new Error(`Error in overwrite request: ${err.status} ${err.statusText}`)
+    .catch(err => {
+        if (err.status === 502 || err.status === 409) throw err
+        const genericRerumNetworkError = new Error(`500: ${overwriteURL} - A RERUM error occurred`)
+        genericRerumNetworkError.status = 502
+        throw genericRerumNetworkError
     })
-    if(res.headersSent) return
-    const result = await response.json()
-    if(response.status === 200) {
-      res.setHeader("Location", result["@id"] ?? result.id)
-      res.status(200)
+    if (!(rerumResponse.id || rerumResponse["@id"])) {
+        // A 200 with garbled data, call it a fail
+        const genericRerumNetworkError = new Error(`500: ${overwriteURL} - A RERUM error occurred`)
+        genericRerumNetworkError.status = 502
+        throw genericRerumNetworkError
     }
-    res.send(result)
+    res.setHeader("Location", rerumResponse["@id"] ?? rerumResponse.id)
+    res.status(200).json(rerumResponse)
   }
   catch (err) {
-    console.log(err)
-    res.status(500).send("Caught Error:" + err)
+    console.error(err)
+    if (err.status === 409) {
+      return res.status(409).json(err.body)
+    }
+    res.status(err.status ?? 500).type('text/plain').send(err.message ?? 'An error occurred')
   }
 })
 

@@ -1,8 +1,10 @@
 import express from "express"
+import rest from "../rest.js"
+
 const router = express.Router()
 
 /* POST a query to the thing. */
-router.post('/', async (req, res, next) => {
+router.post('/', rest.verifyJsonContentType, async (req, res, next) => {
   const lim = req.query.limit ?? 10
   const skip = req.query.skip ?? 0
   try {
@@ -34,13 +36,31 @@ router.post('/', async (req, res, next) => {
       }
     }
     const queryURL = `${process.env.RERUM_API_ADDR}query?limit=${lim}&skip=${skip}`
-    const results = await fetch(queryURL, queryOptions).then(resp => resp.json())
-    res.status(200)
-    res.send(results)
+    const rerumResponse = await fetch(queryURL, queryOptions)
+    .then(async (resp) => {
+        if (resp.ok) return resp.json()
+        // The response from RERUM indicates a failure, likely with a specific code and textual body
+        let rerumErrorMessage
+        try {
+            rerumErrorMessage = `${resp.status ?? 500}: ${queryURL} - ${await resp.text()}`
+        } catch (e) {
+            rerumErrorMessage = `500: ${queryURL} - A RERUM error occurred`
+        }
+        const err = new Error(rerumErrorMessage)
+        err.status = 502
+        throw err
+    })
+    .catch(err => {
+        if (err.status === 502) throw err
+        const genericRerumNetworkError = new Error(`500: ${queryURL} - A RERUM error occurred`)
+        genericRerumNetworkError.status = 502
+        throw genericRerumNetworkError
+    })
+    res.status(200).json(rerumResponse)
   }
   catch (err) { 
-    console.log(err)
-    res.status(err.status ?? 500).send("Caught " + err.message)
+    console.error(err)
+    res.status(err.status ?? 500).type('text/plain').send(err.message ?? 'An error occurred')
   }
 })
 
