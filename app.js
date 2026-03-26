@@ -90,7 +90,7 @@ if(corsAllowedOrigins !== "*") {
       // No CORS for you.
       res.removeHeader("Access-Control-Allow-Origin")
     }
-    next()
+    return next()
   })
 }
 
@@ -110,7 +110,7 @@ app.use('/app/overwrite', overwriteRouter)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  next(createError(404))
+  return next(createError(404))
 })
 
 // error handler
