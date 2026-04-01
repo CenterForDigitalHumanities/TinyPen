@@ -1,6 +1,7 @@
 import express from "express"
 import checkAccessToken from "../tokens.js"
 import rest from "../rest.js"
+import { createRerumNetworkError, fetchRerum } from "../rerum.js"
 
 const router = express.Router()
 
@@ -24,7 +25,7 @@ router.post('/', rest.verifyJsonContentType, checkAccessToken, async (req, res, 
       }
     }
     const createURL = `${process.env.RERUM_API_ADDR}create`
-    const rerumResponse = await fetch(createURL, createOptions)
+    const rerumResponse = await fetchRerum(createURL, createOptions)
     .then(async (resp) => {
         if (resp.ok) return resp.json()
         // The response from RERUM indicates a failure, likely with a specific code and textual body
@@ -38,17 +39,9 @@ router.post('/', rest.verifyJsonContentType, checkAccessToken, async (req, res, 
         err.status = 502
         throw err
     })
-    .catch(err => {
-        if (err.status === 502) throw err
-        const genericRerumNetworkError = new Error(`500: ${createURL} - A RERUM error occurred`)
-        genericRerumNetworkError.status = 502
-        throw genericRerumNetworkError
-    })
     if (!(rerumResponse.id || rerumResponse["@id"])) {
         // A 200 with garbled data, call it a fail
-        const genericRerumNetworkError = new Error(`500: ${createURL} - A RERUM error occurred`)
-        genericRerumNetworkError.status = 502
-        throw genericRerumNetworkError
+        throw createRerumNetworkError(createURL)
     }
     res.setHeader("Location", rerumResponse["@id"] ?? rerumResponse.id)
     res.status(201).json(rerumResponse)
