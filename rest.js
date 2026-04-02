@@ -30,6 +30,45 @@ const hasMultipleContentTypes = (contentType) => {
     })
 }
 
+const DEFAULT_MAX_QUERY_LIMIT = 500
+const DEFAULT_MAX_QUERY_SKIP = 100000
+
+/**
+ * Parse and bound query pagination values.
+ *
+ * @param {Object} [query={}] - Request query object
+ * @param {number} [defaultLimit=10] - Default limit when omitted
+ * @returns {{limit:number, skip:number}}
+ * @throws {Error} If limit or skip are not non-negative integers
+ */
+const getPagination = (query = {}, defaultLimit = 10) => {
+    const maxLimit = Number.parseInt(process.env.RERUM_MAX_QUERY_LIMIT ?? `${DEFAULT_MAX_QUERY_LIMIT}`, 10)
+    const maxSkip = Number.parseInt(process.env.RERUM_MAX_QUERY_SKIP ?? `${DEFAULT_MAX_QUERY_SKIP}`, 10)
+    const safeMaxLimit = Number.isFinite(maxLimit) && maxLimit > 0 ? maxLimit : DEFAULT_MAX_QUERY_LIMIT
+    const safeMaxSkip = Number.isFinite(maxSkip) && maxSkip >= 0 ? maxSkip : DEFAULT_MAX_QUERY_SKIP
+
+    const parseNonNegativeInteger = (value, fallback) => {
+        if (value === undefined || value === null || value === "") return fallback
+        const normalized = `${value}`.trim()
+        if (!/^\d+$/.test(normalized)) return null
+        return Number.parseInt(normalized, 10)
+    }
+
+    const limit = parseNonNegativeInteger(query.limit, defaultLimit)
+    const skip = parseNonNegativeInteger(query.skip, 0)
+
+    if (limit === null || skip === null) {
+        const err = new Error("`limit` and `skip` values must be non-negative integers or omitted.")
+        err.status = 400
+        throw err
+    }
+
+    return {
+        limit: Math.min(limit, safeMaxLimit),
+        skip: Math.min(skip, safeMaxSkip)
+    }
+}
+
 /**
  * Middleware to verify Content-Type headers for endpoints receiving JSON bodies.
  * Responds with a 415 Invalid Media Type for Content-Type headers that are not for JSON bodies.
@@ -57,4 +96,7 @@ const verifyJsonContentType = function (req, res, next) {
     return next(err)
 }
 
-export default { verifyJsonContentType }
+export default {
+    getPagination,
+    verifyJsonContentType
+}
