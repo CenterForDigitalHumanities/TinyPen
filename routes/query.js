@@ -1,5 +1,6 @@
 import express from "express"
 import rest from "../rest.js"
+import { fetchRerum } from "../rerum.js"
 
 const router = express.Router()
 
@@ -26,13 +27,8 @@ router.post('/', rest.verifyJsonContentType, async (req, res, next) => {
         'Content-Type' : "application/json;charset=utf-8"
       }
     }
-<<<<<<< Updated upstream
-    const queryURL = `${process.env.RERUM_API_ADDR}query?limit=${lim}&skip=${skip}`
-    const rerumResponse = await fetch(queryURL, queryOptions)
-=======
     const queryURL = `${process.env.RERUM_API_ADDR}query?limit=${limit}&skip=${skip}`
     const rerumResponse = await fetchRerum(queryURL, queryOptions)
->>>>>>> Stashed changes
     .then(async (resp) => {
         if (resp.ok) return resp.json()
         // The response from RERUM indicates a failure, likely with a specific code and textual body
@@ -45,12 +41,6 @@ router.post('/', rest.verifyJsonContentType, async (req, res, next) => {
         const err = new Error(rerumErrorMessage)
         err.status = 502
         throw err
-    })
-    .catch(err => {
-        if (err.status === 502) throw err
-        const genericRerumNetworkError = new Error(`500: ${queryURL} - A RERUM error occurred`)
-        genericRerumNetworkError.status = 502
-        throw genericRerumNetworkError
     })
     res.status(200).json(rerumResponse)
   }
