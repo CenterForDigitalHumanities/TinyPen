@@ -30,7 +30,10 @@ router.put('/', rest.verifyJsonContentType, checkAccessToken, async (req, res, n
     const updateURL = `${process.env.RERUM_API_ADDR}update`
     const rerumResponse = await fetchRerum(updateURL, updateOptions)
     .then(async (resp) => {
-        if (resp.ok) return resp.json()
+        if (resp.ok) {
+            try { return await resp.json() }
+            catch (e) { throw createRerumNetworkError(updateURL) }
+        }
         // The response from RERUM indicates a failure, likely with a specific code and textual body
         let rerumErrorMessage
         try {

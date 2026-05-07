@@ -41,15 +41,12 @@ async function fetchRerum(url, options = {}) {
   const timeoutMs = getRerumTimeoutMs()
   const timeoutController = new AbortController()
   const timeoutId = setTimeout(() => timeoutController.abort(), timeoutMs)
-  const signal = options.signal
-    ? AbortSignal.any([options.signal, timeoutController.signal])
-    : timeoutController.signal
 
   try {
-    return await fetch(url, { ...options, signal })
+    return await fetch(url, { ...options, signal: timeoutController.signal })
   }
   catch (err) {
-    if (err?.name === "AbortError" && timeoutController.signal.aborted) {
+    if (timeoutController.signal.aborted) {
       throw createRerumTimeoutError(url, timeoutMs)
     }
     throw createRerumNetworkError(url)

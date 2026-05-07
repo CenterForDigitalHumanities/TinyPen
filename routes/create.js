@@ -27,7 +27,10 @@ router.post('/', rest.verifyJsonContentType, checkAccessToken, async (req, res, 
     const createURL = `${process.env.RERUM_API_ADDR}create`
     const rerumResponse = await fetchRerum(createURL, createOptions)
     .then(async (resp) => {
-        if (resp.ok) return resp.json()
+        if (resp.ok) {
+            try { return await resp.json() }
+            catch (e) { throw createRerumNetworkError(createURL) }
+        }
         // The response from RERUM indicates a failure, likely with a specific code and textual body
         let rerumErrorMessage
         try {

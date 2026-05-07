@@ -44,7 +44,10 @@ router.put('/', rest.verifyJsonContentType, checkAccessToken, async (req, res, n
     const overwriteURL = `${process.env.RERUM_API_ADDR}overwrite`
     const rerumResponse = await fetchRerum(overwriteURL, overwriteOptions)
     .then(async (resp) => {
-        if (resp.ok) return resp.json()
+        if (resp.ok) {
+            try { return await resp.json() }
+            catch (e) { throw createRerumNetworkError(overwriteURL) }
+        }
         // Handle 409 conflict error for version mismatch (optimistic locking)
         if (resp.status === 409) {
             const conflictBody = await resp.json()

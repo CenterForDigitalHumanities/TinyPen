@@ -1,6 +1,6 @@
 import express from "express"
 import rest from "../rest.js"
-import { fetchRerum } from "../rerum.js"
+import { createRerumNetworkError, fetchRerum } from "../rerum.js"
 
 const router = express.Router()
 
@@ -39,7 +39,10 @@ router.post('/', rest.verifyJsonContentType, async (req, res, next) => {
     const queryURL = `${process.env.RERUM_API_ADDR}query?limit=${lim}&skip=${skip}`
     const rerumResponse = await fetchRerum(queryURL, queryOptions)
     .then(async (resp) => {
-        if (resp.ok) return resp.json()
+        if (resp.ok) {
+            try { return await resp.json() }
+            catch (e) { throw createRerumNetworkError(queryURL) }
+        }
         // The response from RERUM indicates a failure, likely with a specific code and textual body
         let rerumErrorMessage
         try {
