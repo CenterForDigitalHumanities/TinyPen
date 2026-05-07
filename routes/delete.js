@@ -1,5 +1,6 @@
 import express from "express"
 import checkAccessToken from "../tokens.js"
+import { fetchRerum } from "../rerum.js"
 
 const router = express.Router()
 
@@ -20,7 +21,7 @@ router.delete('/:id', checkAccessToken, async (req, res, next) => {
         'Authorization': `Bearer ${process.env.ACCESS_TOKEN}`
       }
     }
-    await fetch(deleteURL, deleteOptions)
+    await fetchRerum(deleteURL, deleteOptions)
     .then(async (resp) => {
         if (resp.ok) return
         // The response from RERUM indicates a failure, likely with a specific code and textual body
@@ -33,12 +34,6 @@ router.delete('/:id', checkAccessToken, async (req, res, next) => {
         const err = new Error(rerumErrorMessage)
         err.status = 502
         throw err
-    })
-    .catch(err => {
-        if (err.status === 502) throw err
-        const genericRerumNetworkError = new Error(`500: ${deleteURL} - A RERUM error occurred`)
-        genericRerumNetworkError.status = 502
-        throw genericRerumNetworkError
     })
     res.status(204).end()
   }
