@@ -23,11 +23,7 @@ describe("rest.getPagination", () => {
     expect(() => rest.getPagination({ limit: "12abc", skip: "0" }, 10)).toThrow("`limit` and `skip` values must be non-negative integers or omitted.")
     expect(() => rest.getPagination({ limit: "1", skip: "-2" }, 10)).toThrow("`limit` and `skip` values must be non-negative integers or omitted.")
     expect(() => rest.getPagination({ limit: "1.5", skip: "0" }, 10)).toThrow("`limit` and `skip` values must be non-negative integers or omitted.")
-    try {
-      rest.getPagination({ limit: "hello", skip: "0" }, 10)
-    } catch (err) {
-      expect(err.status).toBe(400)
-    }
+    expect(() => rest.getPagination({ limit: "hello", skip: "0" }, 10)).toThrow(expect.objectContaining({ status: 400 }))
   })
 
   it("caps values to configured maximums", () => {
