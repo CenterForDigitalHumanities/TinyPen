@@ -1,0 +1,50 @@
+name: Sync TinyPen shared OpenAPI artifact
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - openapi/components/tinypen-shared-components.openapi.yaml
+  workflow_dispatch:
+
+jobs:
+  sync-shared-openapi-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout TinyPen
+        uses: actions/checkout@v4
+
+      - name: Checkout receiver repository
+        uses: actions/checkout@v4
+        with:
+          repository: cubap/rerum_openapi
+          ref: main
+          token: ${{ secrets.RERUM_OPENAPI_SYNC_TOKEN }}
+          path: rerum_openapi
+
+      - name: Verify source and receiver target files exist
+        run: |
+          test -f openapi/components/tinypen-shared-components.openapi.yaml
+          test -f rerum_openapi/schemas/openapi/tinypen-shared-components.openapi.yaml
+
+      - name: Sync TinyPen shared OpenAPI artifact
+        run: |
+          cp openapi/components/tinypen-shared-components.openapi.yaml \
+            rerum_openapi/schemas/openapi/tinypen-shared-components.openapi.yaml
+
+      - name: Create or update sync pull request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.RERUM_OPENAPI_SYNC_TOKEN }}
+          path: rerum_openapi
+          commit-message: "chore(openapi): sync TinyPen shared components from CenterForDigitalHumanities/TinyPen@${{ github.sha }}"
+          branch: sync/tinypen-shared-components
+          delete-branch: true
+          title: "chore(openapi): sync TinyPen shared components"
+          body: |
+            Automated sync of TinyPen's canonical shared OpenAPI artifact.
+
+            - Source: `CenterForDigitalHumanities/TinyPen/openapi/components/tinypen-shared-components.openapi.yaml`
+            - Source commit: `${{ github.sha }}`
+            - Target: `schemas/openapi/tinypen-shared-components.openapi.yaml`
