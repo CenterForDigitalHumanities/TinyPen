@@ -10,6 +10,8 @@ on:
 
 jobs:
   sync-shared-openapi-artifact:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - name: Checkout TinyPen
@@ -25,8 +27,15 @@ jobs:
 
       - name: Verify source and receiver target files exist
         run: |
-          test -f openapi/components/tinypen-shared-components.openapi.yaml
-          test -f rerum_openapi/schemas/openapi/tinypen-shared-components.openapi.yaml
+          if [ ! -f openapi/components/tinypen-shared-components.openapi.yaml ]; then
+            echo "Source artifact missing: openapi/components/tinypen-shared-components.openapi.yaml"
+            exit 1
+          fi
+
+          if [ ! -f rerum_openapi/schemas/openapi/tinypen-shared-components.openapi.yaml ]; then
+            echo "Receiver target missing: rerum_openapi/schemas/openapi/tinypen-shared-components.openapi.yaml"
+            exit 1
+          fi
 
       - name: Sync TinyPen shared OpenAPI artifact
         run: |
