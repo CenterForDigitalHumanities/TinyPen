@@ -1,11 +1,13 @@
-name: Sync TinyPen shared OpenAPI artifact
+name: Sync TinyPen provider contract artifact
 
 on:
   push:
     branches:
       - main
     paths:
-      - openapi/components/tinypen-shared-components.openapi.yaml
+      - routes/**
+      - app.js
+      - openapi/contracts/tpen-services-to-tinypen.openapi.yaml
   workflow_dispatch:
 
 jobs:
@@ -27,7 +29,7 @@ jobs:
               inputs: {
                 provider_repository: '${{ github.repository }}',
                 provider_ref: '${{ github.sha }}',
-                provider_artifact_path: 'openapi/components/tinypen-shared-components.openapi.yaml',
-                target_artifact_path: 'schemas/openapi/tinypen-shared-components.openapi.yaml'
+                provider_artifact_path: 'openapi/contracts/tpen-services-to-tinypen.openapi.yaml',
+                target_artifact_path: 'seams/tpen-services-to-tinypen/openapi/baseline.openapi.yaml'
               }
             })

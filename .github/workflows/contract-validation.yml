@@ -1,0 +1,54 @@
+name: TinyPen Seam Contract Validation
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+    paths:
+      - routes/**
+      - app.js
+      - openapi/contracts/**
+      - openapi/external/**
+      - .github/workflows/contract-validation.yml
+
+jobs:
+  validate-external-contract-mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout TinyPen
+        uses: actions/checkout@v4
+
+      - name: Fetch upstream TinyNode seam baseline
+        run: |
+          curl -fsSL \
+            https://raw.githubusercontent.com/cubap/rerum_openapi/main/seams/tpen-services-to-tinynode/openapi/baseline.openapi.yaml \
+            -o /tmp/tpen-services-to-tinynode.openapi.yaml
+
+      - name: Fail when local mirror drifted
+        run: |
+          diff -u /tmp/tpen-services-to-tinynode.openapi.yaml openapi/external/tpen-services-to-tinynode.openapi.yaml
+
+  validate-tinypen-consumer-seam:
+    needs:
+      - validate-external-contract-mirror
+    uses: cubap/rerum_openapi/.github/workflows/seam-runtime-validation.yml@main
+    with:
+      contract_repo_ref: main
+      seam_manifest_path: seams/tinypen-to-rerum/manifest.yaml
+      target_base_url: https://store.rerum.io/v1
+      compare_paths: true
+      compare_operations: true
+      timeout_ms: 10000
+
+  validate-tinypen-provider-seam:
+    needs:
+      - validate-external-contract-mirror
+    uses: cubap/rerum_openapi/.github/workflows/seam-runtime-validation.yml@main
+    with:
+      contract_repo_ref: main
+      seam_manifest_path: seams/tpen-services-to-tinypen/manifest.yaml
+      target_base_url: https://tiny.t-pen.org
+      compare_paths: true
+      compare_operations: true
+      timeout_ms: 10000
