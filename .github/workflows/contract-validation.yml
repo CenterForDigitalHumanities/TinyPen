@@ -25,7 +25,7 @@ jobs:
             https://raw.githubusercontent.com/cubap/rerum_openapi/main/seams/tpen-services-to-tinynode/openapi/baseline.openapi.yaml \
             -o /tmp/tpen-services-to-tinynode.openapi.yaml
 
-      - name: Warn when local mirror drifts
+      - name: Warn on local mirror drift
         run: |
           if ! diff -u /tmp/tpen-services-to-tinynode.openapi.yaml openapi/external/tpen-services-to-tinynode.openapi.yaml; then
             echo "::warning title=External seam contract drift detected::The local TinyNode mirror differs from upstream (changed or omitted paths/operations)."
