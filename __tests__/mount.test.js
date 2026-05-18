@@ -1,8 +1,15 @@
 import assert from "node:assert/strict"
-import { describe, it } from "node:test"
+import { after, describe, it } from "node:test"
 
-process.env.OPEN_API_CORS ??= "true"
-const { default: app } = await import("../app.js")
+const originalOpenApiCors = process.env.OPEN_API_CORS
+process.env.OPEN_API_CORS = "true"
+const appModule = await import("../app.js")
+const app = appModule.default
+
+after(() => {
+  if (originalOpenApiCors === undefined) delete process.env.OPEN_API_CORS
+  else process.env.OPEN_API_CORS = originalOpenApiCors
+})
 
 /**
  * Check if a route exists in the Express app

@@ -2,13 +2,18 @@ import assert from "node:assert/strict"
 import { afterEach, describe, it } from "node:test"
 import rest from "../rest.js"
 
+const restoreEnvVar = (name, value) => {
+  if (value === undefined) delete process.env[name]
+  else process.env[name] = value
+}
+
 describe("rest.getPagination", () => {
   const originalMaxLimit = process.env.RERUM_MAX_QUERY_LIMIT
   const originalMaxSkip = process.env.RERUM_MAX_QUERY_SKIP
 
   afterEach(() => {
-    process.env.RERUM_MAX_QUERY_LIMIT = originalMaxLimit
-    process.env.RERUM_MAX_QUERY_SKIP = originalMaxSkip
+    restoreEnvVar("RERUM_MAX_QUERY_LIMIT", originalMaxLimit)
+    restoreEnvVar("RERUM_MAX_QUERY_SKIP", originalMaxSkip)
   })
 
   it("returns defaults when values are omitted", () => {
