@@ -5,12 +5,13 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/tinyPen.js",
-    "test": "jest",
-    "runtest": "node --experimental-vm-modules ./bin/testApp.js"
+    "test": "node --test __tests__/*.test.js",
+    "test:coverage": "c8 --reporter=text --reporter=html --reporter=json-summary --all node --test __tests__/*.test.js",
+    "runtest": "npm run test:coverage"
   },
   "engines": {
-      "node": ">=24.14.0",
-      "npm": ">=11.0.0"
+    "node": ">=24.14.0",
+    "npm": ">=11.0.0"
   },
   "dependencies": {
     "cors": "^2.8.6",
@@ -21,9 +22,6 @@
     "http-errors": "^2.0.1"
   },
   "devDependencies": {
-    "@jest/core": "^30.3.0",
-    "@jest/globals": "^30.3.0",
-    "jest": "^30.3.0",
-    "supertest": "^7.2.2"
+    "c8": "^10.1.3"
   }
 }

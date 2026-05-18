@@ -1,3 +1,5 @@
+import assert from "node:assert/strict"
+import test from "node:test"
 import fs from "fs"
 import path from "path"
 import { fileURLToPath } from "url"
@@ -129,36 +131,34 @@ function getExternalMirrorOperations() {
   return operations
 }
 
-describe("TinyPen provider contract coverage", () => {
-  it("documents every mounted route path", () => {
-    const contractPaths = Array.from(getContractOperations().keys()).sort()
-    const mountedPaths = Array.from(new Set(getMountedOperations().map((operation) => operation.split(" ")[1]))).sort()
-    expect(contractPaths).toEqual(mountedPaths)
-  })
+test("provider contract documents every mounted route path", () => {
+  const contractPaths = Array.from(getContractOperations().keys()).sort()
+  const mountedPaths = Array.from(new Set(getMountedOperations().map((operation) => operation.split(" ")[1]))).sort()
+  assert.deepEqual(contractPaths, mountedPaths)
+})
 
-  it("defines local methods for TinyPen-specific path items", () => {
-    const contractOperations = getContractOperations()
+test("provider contract defines local methods for TinyPen-specific path items", () => {
+  const contractOperations = getContractOperations()
 
-    for (const mountedOperation of getMountedOperations()) {
-      const [method, operationPath] = mountedOperation.split(" ")
-      const entry = contractOperations.get(operationPath)
-      expect(entry).toBeDefined()
+  for (const mountedOperation of getMountedOperations()) {
+    const [method, operationPath] = mountedOperation.split(" ")
+    const entry = contractOperations.get(operationPath)
+    assert.ok(entry)
 
-      if (entry.ref) continue
-      expect(entry.methods.has(method)).toBe(true)
-    }
-  })
+    if (entry.ref) continue
+    assert.equal(entry.methods.has(method), true)
+  }
+})
 
-  it("imports TinyNode core path items for shared endpoints", () => {
-    const coreBaseline = "../external/tpen-services-to-tinynode.openapi.yaml#/paths"
-    const contractOperations = getContractOperations()
-    expect(contractOperations.get("/query")?.ref).toBe(`${coreBaseline}/~1query`)
-    expect(contractOperations.get("/update")?.ref).toBe(`${coreBaseline}/~1update`)
-  })
+test("provider contract imports TinyNode core path items for shared endpoints", () => {
+  const coreBaseline = "../external/tpen-services-to-tinynode.openapi.yaml#/paths"
+  const contractOperations = getContractOperations()
+  assert.equal(contractOperations.get("/query")?.ref, `${coreBaseline}/~1query`)
+  assert.equal(contractOperations.get("/update")?.ref, `${coreBaseline}/~1update`)
+})
 
-  it("keeps the local TinyNode mirror usable for imported operations", () => {
-    const externalOperations = getExternalMirrorOperations()
-    expect(externalOperations.has("POST /query")).toBe(true)
-    expect(externalOperations.has("PUT /update")).toBe(true)
-  })
+test("provider contract keeps the local TinyNode mirror usable for imported operations", () => {
+  const externalOperations = getExternalMirrorOperations()
+  assert.equal(externalOperations.has("POST /query"), true)
+  assert.equal(externalOperations.has("PUT /update"), true)
 })
