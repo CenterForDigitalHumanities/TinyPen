@@ -1,6 +1,8 @@
 import fs from "fs"
 import path from "path"
 import { fileURLToPath } from "url"
+import assert from "node:assert/strict"
+import { describe, it } from "node:test"
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(here, "..")
@@ -133,7 +135,7 @@ describe("TinyPen provider contract coverage", () => {
   it("documents every mounted route path", () => {
     const contractPaths = Array.from(getContractOperations().keys()).sort()
     const mountedPaths = Array.from(new Set(getMountedOperations().map((operation) => operation.split(" ")[1]))).sort()
-    expect(contractPaths).toEqual(mountedPaths)
+    assert.deepEqual(contractPaths, mountedPaths)
   })
 
   it("defines local methods for TinyPen-specific path items", () => {
@@ -142,23 +144,23 @@ describe("TinyPen provider contract coverage", () => {
     for (const mountedOperation of getMountedOperations()) {
       const [method, operationPath] = mountedOperation.split(" ")
       const entry = contractOperations.get(operationPath)
-      expect(entry).toBeDefined()
+      assert.notEqual(entry, undefined)
 
       if (entry.ref) continue
-      expect(entry.methods.has(method)).toBe(true)
+      assert.equal(entry.methods.has(method), true)
     }
   })
 
   it("imports TinyNode core path items for shared endpoints", () => {
     const coreBaseline = "../external/tpen-services-to-tinynode.openapi.yaml#/paths"
     const contractOperations = getContractOperations()
-    expect(contractOperations.get("/query")?.ref).toBe(`${coreBaseline}/~1query`)
-    expect(contractOperations.get("/update")?.ref).toBe(`${coreBaseline}/~1update`)
+    assert.equal(contractOperations.get("/query")?.ref, `${coreBaseline}/~1query`)
+    assert.equal(contractOperations.get("/update")?.ref, `${coreBaseline}/~1update`)
   })
 
   it("keeps the local TinyNode mirror usable for imported operations", () => {
     const externalOperations = getExternalMirrorOperations()
-    expect(externalOperations.has("POST /query")).toBe(true)
-    expect(externalOperations.has("PUT /update")).toBe(true)
+    assert.equal(externalOperations.has("POST /query"), true)
+    assert.equal(externalOperations.has("PUT /update"), true)
   })
 })
