@@ -36,7 +36,8 @@ jobs:
     with:
       contract_repo_ref: main
       seam_manifest_path: seams/tinypen-to-rerum/manifest.yaml
-      target_base_url: https://store.rerum.io/v1
+      target_base_url: ''
+      fixture_file: openapi/fixtures/tinypen-to-rerum.runtime-fixture.json
       compare_paths: true
       compare_operations: true
       timeout_ms: 10000
@@ -48,7 +49,8 @@ jobs:
     with:
       contract_repo_ref: main
       seam_manifest_path: seams/tpen-services-to-tinypen/manifest.yaml
-      target_base_url: https://tiny.t-pen.org
+      target_base_url: ''
+      fixture_file: openapi/fixtures/tpen-services-to-tinypen.runtime-fixture.json
       compare_paths: true
       compare_operations: true
       timeout_ms: 10000
