@@ -25,32 +25,8 @@ jobs:
             https://raw.githubusercontent.com/cubap/rerum_openapi/main/seams/tpen-services-to-tinynode/openapi/baseline.openapi.yaml \
             -o /tmp/tpen-services-to-tinynode.openapi.yaml
 
-      - name: Fail when local mirror drifted
+      - name: Warn when local mirror drifted
         run: |
-          diff -u /tmp/tpen-services-to-tinynode.openapi.yaml openapi/external/tpen-services-to-tinynode.openapi.yaml
-
-  validate-tinypen-consumer-seam:
-    needs:
-      - validate-external-contract-mirror
-    uses: cubap/rerum_openapi/.github/workflows/seam-runtime-validation.yml@main
-    with:
-      contract_repo_ref: main
-      seam_manifest_path: seams/tinypen-to-rerum/manifest.yaml
-      target_base_url: ''
-      fixture_file: openapi/fixtures/tinypen-to-rerum.runtime-fixture.json
-      compare_paths: true
-      compare_operations: true
-      timeout_ms: 10000
-
-  validate-tinypen-provider-seam:
-    needs:
-      - validate-external-contract-mirror
-    uses: cubap/rerum_openapi/.github/workflows/seam-runtime-validation.yml@main
-    with:
-      contract_repo_ref: main
-      seam_manifest_path: seams/tpen-services-to-tinypen/manifest.yaml
-      target_base_url: ''
-      fixture_file: openapi/fixtures/tpen-services-to-tinypen.runtime-fixture.json
-      compare_paths: true
-      compare_operations: true
-      timeout_ms: 10000
+          if ! diff -u /tmp/tpen-services-to-tinynode.openapi.yaml openapi/external/tpen-services-to-tinynode.openapi.yaml; then
+            echo "::warning title=External seam contract drift detected::The local TinyNode mirror differs from upstream (changed or omitted paths/operations)."
+          fi

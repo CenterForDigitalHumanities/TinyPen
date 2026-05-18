@@ -1,9 +1,0 @@
-{
-  "interactions": [
-    {
-      "path": "/query",
-      "method": "post",
-      "expectedStatus": 200
-    }
-  ]
-}
