@@ -54,6 +54,48 @@ describe("checkAccessToken middleware behavior.  __core", () => {
     assert.equal(called, 1)
   })
 
+  it("Calls next when REFRESH_TOKEN is missing (cannot refresh anyway).", async () => {
+    process.env.ACCESS_TOKEN = "token"
+    delete process.env.REFRESH_TOKEN
+    let called = 0
+
+    await checkAccessToken({}, {}, err => {
+      assert.equal(err, undefined)
+      called += 1
+    })
+
+    assert.equal(called, 1)
+  })
+
+  it("Treats malformed token as non-expired and calls next.", async () => {
+    process.env.ACCESS_TOKEN = "not-a-jwt"
+    process.env.REFRESH_TOKEN = "refresh-token"
+    let called = 0
+
+    await checkAccessToken({}, {}, err => {
+      assert.equal(err, undefined)
+      called += 1
+    })
+
+    assert.equal(called, 1)
+  })
+
+  it("Treats non-numeric exp payload as non-expired and skips refresh.", async () => {
+    const payload = Buffer.from(JSON.stringify({ exp: "not-a-number" })).toString("base64")
+    process.env.ACCESS_TOKEN = `header.${payload}.signature`
+    process.env.REFRESH_TOKEN = "refresh-token"
+    global.fetch = async () => {
+      throw new Error("fetch should not be called")
+    }
+
+    let nextError
+    await checkAccessToken({}, {}, err => {
+      nextError = err
+    })
+
+    assert.equal(nextError, undefined)
+  })
+
   it("Calls next without refresh when token is valid and not expired.", async () => {
     process.env.ACCESS_TOKEN = jwtWithExp(Math.floor(Date.now() / 1000) + 3600)
     process.env.REFRESH_TOKEN = "refresh-token"
