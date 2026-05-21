@@ -55,8 +55,14 @@ describe("checkAccessToken middleware behavior.  __core", () => {
   })
 
   it("Calls next when REFRESH_TOKEN is missing (cannot refresh anyway).", async () => {
-    process.env.ACCESS_TOKEN = "token"
+    // Use an expired ACCESS_TOKEN so the code would attempt refresh if the
+    // REFRESH_TOKEN guard were removed. The throwing fetch stub then surfaces
+    // that mutation as a failed assertion.
+    process.env.ACCESS_TOKEN = jwtWithExp(Math.floor(Date.now() / 1000) - 60)
     delete process.env.REFRESH_TOKEN
+    global.fetch = async () => {
+      throw new Error("fetch should not be called when REFRESH_TOKEN is absent")
+    }
     let called = 0
 
     await checkAccessToken({}, {}, err => {
@@ -151,6 +157,30 @@ describe("checkAccessToken middleware behavior.  __core", () => {
       const envText = await fs.readFile(path.join(tempDir, ".env"), "utf8")
       assert.match(envText, /ACCESS_TOKEN=new-access-token/)
     }, "ACCESS_TOKEN=old-token\n")
+  })
+
+  it("Continues when refresh succeeds but .env read fails.", async () => {
+    // inTempCwd without env content means there is no .env file — the
+    // fs.readFile call in generateNewAccessToken throws ENOENT, which is
+    // the branch under test. The middleware must still call next() with
+    // no error so live requests do not 500 when only persistence fails.
+    await inTempCwd(async () => {
+      process.env.ACCESS_TOKEN = jwtWithExp(Math.floor(Date.now() / 1000) - 60)
+      process.env.RERUM_ACCESS_TOKEN_URL = "https://auth.example/token"
+      process.env.REFRESH_TOKEN = "refresh-token"
+
+      global.fetch = async () => ({
+        json: async () => ({ access_token: "new-access-token-2" })
+      })
+
+      let nextError
+      await checkAccessToken({}, {}, err => {
+        nextError = err
+      })
+
+      assert.equal(nextError, undefined)
+      assert.equal(process.env.ACCESS_TOKEN, "new-access-token-2")
+    })
   })
 
   it("Surfaces an error when refresh response is missing access_token.", async () => {
