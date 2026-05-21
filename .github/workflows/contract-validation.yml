@@ -1,0 +1,32 @@
+name: TinyPen Seam Contract Validation
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+    paths:
+      - routes/**
+      - app.js
+      - openapi/contracts/**
+      - openapi/external/**
+      - .github/workflows/contract-validation.yml
+
+jobs:
+  validate-external-contract-mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout TinyPen
+        uses: actions/checkout@v4
+
+      - name: Fetch upstream TinyNode seam baseline
+        run: |
+          curl -fsSL \
+            https://raw.githubusercontent.com/cubap/rerum_openapi/main/seams/tpen-services-to-tinynode/openapi/baseline.openapi.yaml \
+            -o /tmp/tpen-services-to-tinynode.openapi.yaml
+
+      - name: Warn on external seam contract drift
+        run: |
+          if ! diff -u /tmp/tpen-services-to-tinynode.openapi.yaml openapi/external/tpen-services-to-tinynode.openapi.yaml; then
+            echo "::warning title=External seam contract drift detected::The local TinyNode mirror differs from upstream (changed or omitted paths/operations)."
+          fi

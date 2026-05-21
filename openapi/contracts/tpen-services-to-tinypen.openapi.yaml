@@ -1,0 +1,126 @@
+openapi: 3.0.3
+info:
+  title: TPEN-services to TinyPen Contract
+  version: 0.2.0
+  description: Provider-maintained baseline contract for TPEN-services calls into TinyPen.
+servers:
+  - url: https://tiny.t-pen.org
+paths:
+  /create:
+    post:
+      summary: Create object
+      operationId: createObject
+      responses:
+        '201':
+          description: Created object
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /query:
+    $ref: ../external/tpen-services-to-tinynode.openapi.yaml#/paths/~1query
+  /update:
+    $ref: ../external/tpen-services-to-tinynode.openapi.yaml#/paths/~1update
+  /overwrite:
+    put:
+      summary: Overwrite object
+      operationId: overwriteObject
+      responses:
+        '200':
+          description: Overwritten object
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '409':
+          description: Version conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /delete/{id}:
+    delete:
+      summary: Delete object by id
+      operationId: deleteObjectById
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Object deleted
+  /app/create:
+    post:
+      summary: Create object (legacy path)
+      operationId: createObjectLegacy
+      responses:
+        '201':
+          description: Created object
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /app/query:
+    post:
+      summary: Query objects (legacy path)
+      operationId: queryObjectsLegacy
+      responses:
+        '200':
+          description: Query results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+  /app/update:
+    put:
+      summary: Update object (legacy path)
+      operationId: updateObjectLegacy
+      responses:
+        '200':
+          description: Updated object
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /app/overwrite:
+    put:
+      summary: Overwrite object (legacy path)
+      operationId: overwriteObjectLegacy
+      responses:
+        '200':
+          description: Overwritten object
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '409':
+          description: Version conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /app/delete/{id}:
+    delete:
+      summary: Delete object by id (legacy path)
+      operationId: deleteObjectByIdLegacy
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Object deleted
