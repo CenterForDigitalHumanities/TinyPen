@@ -30,47 +30,58 @@ describe("Shared OpenAPI artifact sync scaffolding.", () => {
     assert.match(contract, /^paths:/m, "contract must define a paths section")
   })
 
-  it("the shared-components sync workflow dispatches the correct receiver workflow with correct inputs.  __exists __core", () => {
+  it("the shared-components sync workflow checks out the correct receiver and copies to the right target.  __exists __core", () => {
     const workflow = fs.readFileSync(sharedWorkflowPath, "utf8")
-    assert.match(workflow, /workflow_id:\s*['"]?sync-provider-artifact\.yml['"]?/, "workflow must dispatch sync-provider-artifact.yml in the receiver")
-    assert.match(workflow, /owner:\s*['"]?cubap['"]?/, "workflow must dispatch into cubap/rerum_openapi (owner: cubap)")
-    assert.match(workflow, /repo:\s*['"]?rerum_openapi['"]?/, "workflow must dispatch into cubap/rerum_openapi (repo: rerum_openapi)")
+    assert.match(workflow, /repository:\s*cubap\/rerum_openapi/, "workflow must check out cubap/rerum_openapi as the receiver")
     assert.match(
       workflow,
-      /provider_artifact_path:\s*['"]?openapi\/components\/tinypen-shared-components\.openapi\.yaml['"]?/,
+      /openapi\/components\/tinypen-shared-components\.openapi\.yaml/,
       "workflow must reference the canonical shared-components source path"
     )
     assert.match(
       workflow,
-      /target_artifact_path:\s*['"]?schemas\/openapi\/tinypen-shared-components\.openapi\.yaml['"]?/,
+      /schemas\/openapi\/tinypen-shared-components\.openapi\.yaml/,
       "workflow must reference the receiver shared-components target path"
+    )
+    assert.match(
+      workflow,
+      /cp\s+openapi\/components\/tinypen-shared-components\.openapi\.yaml\s+\S*schemas\/openapi\/tinypen-shared-components\.openapi\.yaml/,
+      "workflow's cp command must copy from the canonical source to the receiver target — a retargeted copy would silently corrupt the receiver"
     )
   })
 
-  it("the provider-contract sync workflow dispatches the correct receiver workflow with correct inputs.  __exists __core", () => {
+  it("the provider-contract sync workflow checks out the correct receiver and copies to the right target.  __exists __core", () => {
     const workflow = fs.readFileSync(providerWorkflowPath, "utf8")
-    assert.match(workflow, /workflow_id:\s*['"]?sync-provider-artifact\.yml['"]?/, "workflow must dispatch sync-provider-artifact.yml in the receiver")
-    assert.match(workflow, /owner:\s*['"]?cubap['"]?/, "workflow must dispatch into cubap/rerum_openapi (owner: cubap)")
-    assert.match(workflow, /repo:\s*['"]?rerum_openapi['"]?/, "workflow must dispatch into cubap/rerum_openapi (repo: rerum_openapi)")
+    assert.match(workflow, /repository:\s*cubap\/rerum_openapi/, "workflow must check out cubap/rerum_openapi as the receiver")
     assert.match(
       workflow,
-      /provider_artifact_path:\s*['"]?openapi\/contracts\/tpen-services-to-tinypen\.openapi\.yaml['"]?/,
+      /openapi\/contracts\/tpen-services-to-tinypen\.openapi\.yaml/,
       "workflow must reference the canonical provider-contract source path"
     )
     assert.match(
       workflow,
-      /target_artifact_path:\s*['"]?seams\/tpen-services-to-tinypen\/openapi\/baseline\.openapi\.yaml['"]?/,
+      /seams\/tpen-services-to-tinypen\/openapi\/baseline\.openapi\.yaml/,
       "workflow must reference the receiver provider-contract target path"
+    )
+    assert.match(
+      workflow,
+      /cp\s+openapi\/contracts\/tpen-services-to-tinypen\.openapi\.yaml\s+\S*seams\/tpen-services-to-tinypen\/openapi\/baseline\.openapi\.yaml/,
+      "workflow's cp command must copy from the canonical source to the receiver target — a retargeted copy would silently corrupt the receiver"
     )
   })
 
-  it("both sync workflows use the expected org-level secret.  __exists __core", () => {
+  it("both sync workflows pin peter-evans/create-pull-request and use the expected org secret.  __exists __core", () => {
     for (const workflowPath of [sharedWorkflowPath, providerWorkflowPath]) {
       const workflow = fs.readFileSync(workflowPath, "utf8")
       assert.match(
         workflow,
+        /peter-evans\/create-pull-request@v\d+/,
+        `${path.basename(workflowPath)} must pin a major version of peter-evans/create-pull-request`
+      )
+      assert.match(
+        workflow,
         /secrets\.OPENAPI(?!\w)/,
-        `${path.basename(workflowPath)} must read the org-level secret named OPENAPI — a rename here breaks the dispatch silently`
+        `${path.basename(workflowPath)} must read the org-level secret named OPENAPI — a rename here breaks the sync silently at the receiver checkout step`
       )
     }
   })
